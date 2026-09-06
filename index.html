@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An interactive, friendly, hands-on guide to Linux Mint XFCE Edition for complete newcomers. Zero terminal required, 100% everyday computing confidence.">
+  <meta name="keywords" content="Linux Mint, XFCE, Linux for beginners, Windows to Linux, Whisker Menu, Software Manager, Thunar">
+  <title>Linux Mint XFCE Guide — The Friendly Newcomer Playground</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="top-nav">
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <div class="brand-icon">🍃</div>
+        <div class="brand-text">
+          <h1>Linux Mint Guide</h1>
+          <span class="brand-tag">XFCE Edition • Complete Beginner Friendly</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <div class="progress-widget" title="Your overall learning progress">
+          <div class="progress-widget-bar">
+            <div class="progress-widget-fill" id="global-progress-fill"></div>
+          </div>
+          <span id="global-progress-text">0% Mastered</span>
+        </div>
+        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle theme">
+          🌙 Dark Mode
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <span>🌱 Fear-Free Learning</span> • <span>Zero Experience Needed</span>
+      </div>
+      <h2>Switching to <span class="hero-highlight">Linux Mint XFCE</span> is Easier Than You Think.</h2>
+      <p>
+        Never used Linux before? Intimidated by talk of black command-line screens? 
+        <strong>Relax.</strong> Linux Mint XFCE gives you a familiar desktop, 1-click app installs, and rock-solid stability without requiring a single terminal command.
+      </p>
+      
+      <div class="reassurance-banner">
+        <div class="reassurance-pill">
+          <span class="reassurance-icon">🚫</span>
+          <span>No Terminal Required</span>
+        </div>
+        <div class="reassurance-pill">
+          <span class="reassurance-icon">🛡️</span>
+          <span>Built-In Safety Net (Timeshift)</span>
+        </div>
+        <div class="reassurance-pill">
+          <span class="reassurance-icon">📦</span>
+          <span>Safe App Store (No Malware .exes)</span>
+        </div>
+        <div class="reassurance-pill">
+          <span class="reassurance-icon">⚡</span>
+          <span>Runs Fast on Any PC</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Windows-to-Mint Translator Section -->
+  <section class="translator-section" id="rosetta-stone">
+    <div class="container">
+      <div class="translator-card">
+        <div class="translator-header">
+          <div class="translator-title">
+            <span>🔄</span>
+            <h3>Windows to Linux Mint XFCE Translator</h3>
+          </div>
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="translator-search" class="search-input" placeholder="Search Windows term (e.g. exe, C: drive, start menu, office)..." aria-label="Search Windows to Mint concepts">
+          </div>
+        </div>
+        
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+          Wondering how your everyday Windows habits translate to Linux Mint? Type a term or click any popular topic below:
+        </p>
+        
+        <div class="quick-tags" id="quick-tags">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <div class="translator-result-box" id="translator-result">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Modules -->
+  <main class="container modules-wrapper">
+
+    <!-- MODULE 1: First Steps & Safety Net -->
+    <article class="module-card" id="module-1">
+      <div class="module-badge-row">
+        <span class="module-number">Module 1</span>
+        <span class="module-status" id="mod-status-1">● In Progress</span>
+      </div>
+      <div class="module-header">
+        <h3>First Steps & The Ultimate Safety Net</h3>
+      </div>
+      <p class="module-intro">
+        The biggest fear for beginners is: <em>"What if I mess something up and break my computer?"</em> In Linux Mint, you have <strong>Timeshift</strong>. It acts like an automatic time machine for your operating system.
+      </p>
+
+      <div class="concept-grid">
+        <div class="concept-item">
+          <h4>🛡️ Timeshift Snapshots</h4>
+          <p>Takes complete snapshots of your system files. If any update or tweak ever misbehaves, you can roll back to yesterday with one click.</p>
+        </div>
+        <div class="concept-item">
+          <h4>🔰 Update Manager</h4>
+          <p>The gentle green shield in your panel. Mint updates software quietly without forced restarts or interrupting your workday.</p>
+        </div>
+        <div class="concept-item">
+          <h4>⚙️ Driver Manager</h4>
+          <p>Checks your hardware automatically and installs recommended Wi-Fi and graphics card drivers (like Nvidia) with a simple checkmark.</p>
+        </div>
+      </div>
+
+      <!-- XFCE Mock Window: Timeshift Simulator -->
+      <div class="xfce-window" id="window-timeshift">
+        <div class="xfce-titlebar">
+          <div class="xfce-title">
+            <span class="xfce-title-icon">🕒</span>
+            <span>Timeshift — System Restore Simulator</span>
+          </div>
+          <div class="xfce-controls">
+            <button type="button" class="xfce-btn xfce-btn-min" title="Minimize Window" aria-label="Minimize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-max" title="Maximize Window" aria-label="Maximize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-close" title="Close Window" aria-label="Close Window"></button>
+          </div>
+        </div>
+        <div class="xfce-closed-banner">
+          Window minimized. <button type="button" class="sim-btn">↺ Reopen Timeshift</button>
+        </div>
+        <div class="xfce-body">
+          <div class="timeshift-demo">
+            <p style="font-size: 0.88rem; color: var(--text-secondary);">
+              <strong>Interactive Experiment:</strong> Experience how safe Linux Mint is. Try taking a snapshot, simulate an accidental mistake, and restore it back in seconds!
+            </p>
+
+            <div class="timeshift-timeline">
+              <div class="timeline-step active" id="step-snapshot-1">
+                <span class="step-title">Snapshot #1</span>
+                <span class="step-time">Clean Setup (Today)</span>
+              </div>
+              <div class="timeline-step" id="step-snapshot-2">
+                <span class="step-title">Current State</span>
+                <span class="step-time">Active System</span>
+              </div>
+            </div>
+
+            <div id="timeshift-status" class="status-alert info">
+              ℹ️ Your system is currently in a pristine, working state.
+            </div>
+
+            <div class="timeshift-actions">
+              <button type="button" class="sim-btn sim-btn-primary" id="btn-take-snapshot">
+                📸 Create Snapshot
+              </button>
+              <button type="button" class="sim-btn sim-btn-danger" id="btn-simulate-break">
+                💥 Simulate Bad Tweak
+              </button>
+              <button type="button" class="sim-btn" id="btn-restore-snapshot">
+                ↺ Restore Snapshot
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Knowledge Check 1 -->
+      <div class="quiz-box" data-quiz-id="quiz-1">
+        <div class="quiz-header">
+          <span class="quiz-icon">❓</span>
+          <div class="quiz-question">How does Linux Mint handle software updates differently than Windows?</div>
+        </div>
+        <div class="quiz-options">
+          <button type="button" class="quiz-option-btn" data-val="a">
+            <span>A)</span> It shuts down your computer without asking during presentations.
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="b">
+            <span>B)</span> The gentle shield icon notifies you, you choose when to update, and it never forces a reboot.
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="c">
+            <span>C)</span> You must format your hard drive every time an update is released.
+          </button>
+        </div>
+        <div class="quiz-footer">
+          <div class="quiz-feedback"></div>
+          <button type="button" class="quiz-reset-btn">↺ Try Again</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- MODULE 2: The Whisker Menu & Desktop Navigation -->
+    <article class="module-card" id="module-2">
+      <div class="module-badge-row">
+        <span class="module-number">Module 2</span>
+        <span class="module-status" id="mod-status-2">● In Progress</span>
+      </div>
+      <div class="module-header">
+        <h3>Finding Everything: The Whisker Menu</h3>
+      </div>
+      <p class="module-intro">
+        Linux Mint XFCE uses the renowned <strong>Whisker Menu</strong>. Located at the bottom-left corner just like the Windows Start button, it lets you search for any app, browse categories, or pin your favorites.
+      </p>
+
+      <div class="concept-grid">
+        <div class="concept-item">
+          <h4>🔍 Instant Search</h4>
+          <p>Press the <code>Super</code> (Windows) key on your keyboard and immediately start typing. The app or setting you want appears in milliseconds.</p>
+        </div>
+        <div class="concept-item">
+          <h4>📌 Favorites Panel</h4>
+          <p>Keep your most frequent programs pinned on the left edge for immediate 1-click access anytime.</p>
+        </div>
+        <div class="concept-item">
+          <h4>🗂️ Clean Categories</h4>
+          <p>Everything is logically sorted into Internet, Office, Multimedia, Accessories, and System Settings. No ads, no sponsored junk.</p>
+        </div>
+      </div>
+
+      <!-- XFCE Mock Window: Whisker Menu Simulator -->
+      <div class="xfce-window" id="window-whisker">
+        <div class="xfce-titlebar">
+          <div class="xfce-title">
+            <span class="xfce-title-icon">🖥️</span>
+            <span>Mint XFCE Desktop & Whisker Menu Sandbox</span>
+          </div>
+          <div class="xfce-controls">
+            <button type="button" class="xfce-btn xfce-btn-min" title="Minimize Window" aria-label="Minimize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-max" title="Maximize Window" aria-label="Maximize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-close" title="Close Window" aria-label="Close Window"></button>
+          </div>
+        </div>
+        <div class="xfce-closed-banner">
+          Window minimized. <button type="button" class="sim-btn">↺ Reopen Whisker Sandbox</button>
+        </div>
+        <div class="xfce-body" style="padding: 0;">
+          
+          <div id="whisker-feedback-toast" class="status-alert success" style="display: none; margin: 0.75rem;"></div>
+
+          <!-- Whisker Menu Box -->
+          <div class="whisker-container" id="whisker-window-body">
+            <!-- Categories Sidebar -->
+            <div class="whisker-sidebar">
+              <button type="button" class="whisker-cat-btn active" data-cat="all">📁 All Applications</button>
+              <button type="button" class="whisker-cat-btn" data-cat="favorites">⭐ Favorites</button>
+              <button type="button" class="whisker-cat-btn" data-cat="internet">🌐 Internet</button>
+              <button type="button" class="whisker-cat-btn" data-cat="multimedia">🎬 Multimedia</button>
+              <button type="button" class="whisker-cat-btn" data-cat="office">📝 Office</button>
+              <button type="button" class="whisker-cat-btn" data-cat="accessories">🧮 Accessories</button>
+              <button type="button" class="whisker-cat-btn" data-cat="system">⚙️ System</button>
+            </div>
+
+            <!-- Main App List & Search -->
+            <div class="whisker-main">
+              <div class="whisker-search-box">
+                <input type="text" id="whisker-search" class="whisker-search-input" placeholder="Type to search apps (e.g. Firefox, Calc, VLC)..." aria-label="Search simulated apps">
+              </div>
+              <div class="whisker-apps-list" id="whisker-apps-container">
+                <!-- Populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Panel Popover Container -->
+          <div id="panel-popup-content" class="panel-popup-modal"></div>
+
+          <!-- Bottom XFCE Panel with Functional Buttons -->
+          <div class="xfce-mock-panel">
+            <div class="panel-left">
+              <button type="button" class="mint-menu-trigger" id="whisker-menu-trigger" title="Click to toggle Whisker Menu">
+                <span>🍃</span>
+                <span>Menu</span>
+              </button>
+              <button type="button" class="panel-icon-btn" id="panel-btn-browser" title="Launch Firefox Web Browser">🌐</button>
+              <button type="button" class="panel-icon-btn" id="panel-btn-files" title="Open Thunar File Manager">📁</button>
+              <button type="button" class="panel-icon-btn" id="panel-btn-terminal" title="Launch XFCE Terminal">💻</button>
+            </div>
+            <div class="panel-right">
+              <button type="button" class="panel-icon-btn" id="panel-btn-shield" title="Update Manager: Up to Date">🛡️</button>
+              <button type="button" class="panel-icon-btn" id="panel-btn-volume" title="Volume Control: 100%">🔊</button>
+              <button type="button" class="panel-icon-btn" id="panel-btn-wifi" title="Wi-Fi: Connected">📶</button>
+              <button type="button" class="panel-icon-btn" id="panel-btn-clock" title="Date & Time Settings">10:24 AM</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Knowledge Check 2 -->
+      <div class="quiz-box" data-quiz-id="quiz-2">
+        <div class="quiz-header">
+          <span class="quiz-icon">❓</span>
+          <div class="quiz-question">How do you quickly find and launch an application in Linux Mint XFCE?</div>
+        </div>
+        <div class="quiz-options">
+          <button type="button" class="quiz-option-btn" data-val="a">
+            <span>A)</span> You have to memorize complicated coding commands.
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="b">
+            <span>B)</span> You must reboot the computer into safe mode.
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="c">
+            <span>C)</span> Click the "Menu" button (or press the Windows key) and simply type the app name.
+          </button>
+        </div>
+        <div class="quiz-footer">
+          <div class="quiz-feedback"></div>
+          <button type="button" class="quiz-reset-btn">↺ Try Again</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- MODULE 3: Installing Apps Safely -->
+    <article class="module-card" id="module-3">
+      <div class="module-badge-row">
+        <span class="module-number">Module 3</span>
+        <span class="module-status" id="mod-status-3">● In Progress</span>
+      </div>
+      <div class="module-header">
+        <h3>Installing Apps Safely (Goodbye Sketchy .exe Files!)</h3>
+      </div>
+      <p class="module-intro">
+        On Windows, users got used to searching Google, downloading unknown <code>.exe</code> installer files, and carefully unchecking bundled toolbars. 
+        In Linux Mint, you have the <strong>Software Manager</strong>—a safe, curated app store with over 60,000 verified free applications.
+      </p>
+
+      <div class="concept-grid">
+        <div class="concept-item">
+          <h4>🔒 Verified & Safe</h4>
+          <p>Every piece of software is reviewed and digitally verified. No adware, no spyware, and no surprise browser toolbars.</p>
+        </div>
+        <div class="concept-item">
+          <h4>📦 Flatpak Support</h4>
+          <p>Sandboxed applications that include all their dependencies. Mint gives you the latest Blender, Steam, and Discord effortlessly.</p>
+        </div>
+        <div class="concept-item">
+          <h4>🔄 Centralized 1-Click Updates</h4>
+          <p>When you update your system, all your installed applications update together at the exact same time. No popups inside individual apps.</p>
+        </div>
+      </div>
+
+      <!-- XFCE Mock Window: Software Manager Simulator -->
+      <div class="xfce-window" id="window-software">
+        <div class="xfce-titlebar">
+          <div class="xfce-title">
+            <span class="xfce-title-icon">📦</span>
+            <span>Software Manager Simulator</span>
+          </div>
+          <div class="xfce-controls">
+            <button type="button" class="xfce-btn xfce-btn-min" title="Minimize Window" aria-label="Minimize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-max" title="Maximize Window" aria-label="Maximize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-close" title="Close Window" aria-label="Close Window"></button>
+          </div>
+        </div>
+        <div class="xfce-closed-banner">
+          Window minimized. <button type="button" class="sim-btn">↺ Reopen Software Manager</button>
+        </div>
+        <div class="xfce-body">
+          <div class="software-manager-demo">
+            <div class="software-search-bar">
+              <input type="text" id="software-search" class="search-input" placeholder="Search popular applications (e.g. Steam, VLC, Blender)..." aria-label="Search software store">
+            </div>
+
+            <div class="software-category-filter" id="software-category-filter">
+              <button type="button" class="soft-cat-btn active" data-cat="all">All Apps</button>
+              <button type="button" class="soft-cat-btn" data-cat="featured">⭐ Featured</button>
+              <button type="button" class="soft-cat-btn" data-cat="internet">🌐 Internet</button>
+              <button type="button" class="soft-cat-btn" data-cat="office">📝 Office</button>
+              <button type="button" class="soft-cat-btn" data-cat="graphics">🎨 Graphics</button>
+              <button type="button" class="soft-cat-btn" data-cat="multimedia">🎬 Multimedia</button>
+              <button type="button" class="soft-cat-btn" data-cat="system">⚙️ System</button>
+            </div>
+
+            <div class="software-grid" id="software-grid">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Knowledge Check 3 -->
+      <div class="quiz-box" data-quiz-id="quiz-3">
+        <div class="quiz-header">
+          <span class="quiz-icon">❓</span>
+          <div class="quiz-question">What is the safest, standard way to install new software on Linux Mint?</div>
+        </div>
+        <div class="quiz-options">
+          <button type="button" class="quiz-option-btn" data-val="a">
+            <span>A)</span> Open the Software Manager, search for the program, and click "Install".
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="b">
+            <span>B)</span> Download random .exe files from popups on internet websites.
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="c">
+            <span>C)</span> Purchase expensive CD installation discs.
+          </button>
+        </div>
+        <div class="quiz-footer">
+          <div class="quiz-feedback"></div>
+          <button type="button" class="quiz-reset-btn">↺ Try Again</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- MODULE 4: Where Are My Files? (Thunar) -->
+    <article class="module-card" id="module-4">
+      <div class="module-badge-row">
+        <span class="module-number">Module 4</span>
+        <span class="module-status" id="mod-status-4">● In Progress</span>
+      </div>
+      <div class="module-header">
+        <h3>Where Are My Files? (Thunar File Manager)</h3>
+      </div>
+      <p class="module-intro">
+        The biggest difference Windows switchers notice is the absence of a <code>C:\</code> drive. In Linux Mint, your computer uses a unified filesystem tree. All your personal files reside safely inside your <strong>Home</strong> folder.
+      </p>
+
+      <div class="concept-grid">
+        <div class="concept-item">
+          <h4>🏠 Your Home Folder</h4>
+          <p>Located at <code>/home/yourname/</code>. It contains your familiar Desktop, Documents, Downloads, Pictures, and Videos folders.</p>
+        </div>
+        <div class="concept-item">
+          <h4>💾 USB Flash Drives</h4>
+          <p>Plug in a flash drive or external hard drive and it appears instantly in the Thunar sidebar under Devices or <code>/media/</code>.</p>
+        </div>
+        <div class="concept-item">
+          <h4>🛡️ Safety By Separation</h4>
+          <p>System files belong to the operating system; your files belong to you. An app cannot accidentally overwrite your files without explicit permission.</p>
+        </div>
+      </div>
+
+      <!-- XFCE Mock Window: Thunar Simulator -->
+      <div class="xfce-window" id="window-thunar">
+        <div class="xfce-titlebar">
+          <div class="xfce-title">
+            <span class="xfce-title-icon">📁</span>
+            <span>Thunar File Manager Simulator</span>
+          </div>
+          <div class="xfce-controls">
+            <button type="button" class="xfce-btn xfce-btn-min" title="Minimize Window" aria-label="Minimize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-max" title="Maximize Window" aria-label="Maximize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-close" title="Close Window" aria-label="Close Window"></button>
+          </div>
+        </div>
+        <div class="xfce-closed-banner">
+          Window minimized. <button type="button" class="sim-btn">↺ Reopen Thunar</button>
+        </div>
+        <div class="xfce-body" style="padding: 0;">
+          
+          <div id="thunar-file-info" class="status-alert info" style="display: none; margin: 0.75rem;"></div>
+
+          <div class="thunar-container">
+            <!-- Sidebar -->
+            <div class="thunar-sidebar" id="thunar-sidebar-items">
+              <div class="thunar-group-title">Places</div>
+              <div class="thunar-side-item active" data-path="/home/newcomer">🏠 Home</div>
+              <div class="thunar-side-item" data-path="/home/newcomer/Documents">📁 Documents</div>
+              <div class="thunar-side-item" data-path="/home/newcomer/Downloads">📥 Downloads</div>
+              <div class="thunar-side-item" data-path="/home/newcomer/Pictures">🖼️ Pictures</div>
+              <div class="thunar-side-item" data-path="/home/newcomer/Videos">🎬 Videos</div>
+
+              <div class="thunar-group-title">Devices</div>
+              <div class="thunar-side-item" data-path="/media/newcomer/USB_DRIVE">💾 USB Drive (32GB)</div>
+            </div>
+
+            <!-- Main File Area -->
+            <div class="thunar-main">
+              <div class="thunar-pathbar">
+                <span class="pathbar-label">📍 Location:</span>
+                <div class="thunar-breadcrumbs" id="thunar-breadcrumbs">
+                  <!-- Populated by JavaScript with clickable breadcrumb buttons -->
+                  <span id="thunar-path" style="display: none;">/home/newcomer</span>
+                </div>
+              </div>
+              <div class="thunar-file-grid" id="thunar-files">
+                <!-- Populated by JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Knowledge Check 4 -->
+      <div class="quiz-box" data-quiz-id="quiz-4">
+        <div class="quiz-header">
+          <span class="quiz-icon">❓</span>
+          <div class="quiz-question">Where are your personal photos, documents, and downloads stored in Linux Mint?</div>
+        </div>
+        <div class="quiz-options">
+          <button type="button" class="quiz-option-btn" data-val="a">
+            <span>A)</span> Only on the C:\ drive inside Program Files.
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="b">
+            <span>B)</span> In your personal "Home" directory (/home/username/).
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="c">
+            <span>C)</span> Linux deletes all files when you turn off the computer.
+          </button>
+        </div>
+        <div class="quiz-footer">
+          <div class="quiz-feedback"></div>
+          <button type="button" class="quiz-reset-btn">↺ Try Again</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- MODULE 5: Demystifying the Terminal -->
+    <article class="module-card" id="module-5">
+      <div class="module-badge-row">
+        <span class="module-number">Module 5</span>
+        <span class="module-status" id="mod-status-5">● In Progress</span>
+      </div>
+      <div class="module-header">
+        <h3>Demystifying the Terminal (A Fear-Free Sandbox)</h3>
+      </div>
+      <p class="module-intro">
+        <strong>Myth:</strong> <em>"You have to be a computer hacker to use Linux."</em><br>
+        <strong>Truth:</strong> You never have to touch the terminal for daily work. However, when someone on a friendly Mint forum gives you a quick solution, understanding what those words mean turns fear into a superpower!
+      </p>
+
+      <div class="concept-grid">
+        <div class="concept-item">
+          <h4>💬 It's Just Text Commands</h4>
+          <p>A terminal is simply a conversation where you type a simple verb (like <code>ls</code> to list files) and it answers directly with plain text.</p>
+        </div>
+        <div class="concept-item">
+          <h4>🛡️ The "sudo" Safety Key</h4>
+          <p><code>sudo</code> is just the Linux equivalent of right-clicking and choosing <em>"Run as Administrator"</em> in Windows. It asks for your password to protect you.</p>
+        </div>
+        <div class="concept-item">
+          <h4>📋 Copy & Paste Magic</h4>
+          <p>Inside the Linux terminal, shortcut to paste is <code>Ctrl + Shift + V</code>. It makes troubleshooting forum fixes instantaneous.</p>
+        </div>
+      </div>
+
+      <!-- Terminal Sandbox Simulator -->
+      <div class="terminal-window" id="window-terminal">
+        <div class="terminal-titlebar">
+          <div>💻 newcomer@mint-xfce: ~ (Safe Beginner Terminal)</div>
+          <div class="xfce-controls">
+            <button type="button" class="xfce-btn xfce-btn-min" title="Minimize Window" aria-label="Minimize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-max" title="Maximize Window" aria-label="Maximize Window"></button>
+            <button type="button" class="xfce-btn xfce-btn-close" title="Close Window" aria-label="Close Window"></button>
+          </div>
+        </div>
+
+        <div class="xfce-closed-banner">
+          Terminal closed. <button type="button" class="sim-btn">↺ Reopen Safe Terminal</button>
+        </div>
+
+        <div class="terminal-screen" id="terminal-screen">
+          <div style="color: #94a3b8; margin-bottom: 0.75rem;">
+            Linux Mint 22 (XFCE Edition) - Welcome to the safe newcomer terminal playground.<br>
+            Type any command below or simply click one of the quick suggestions. Zero danger!
+          </div>
+        </div>
+
+        <div class="terminal-suggestions">
+          <div class="suggestions-title">💡 Click any safe command to try it out instantly:</div>
+          <div class="cmd-chips" id="terminal-command-chips">
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="neofetch">neofetch (Show specs)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="ls">ls (List files)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="pwd">pwd (Where am I?)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="free -h">free -h (Check RAM)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="cat welcome_notes.txt">cat welcome_notes.txt (Read file)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="whoami">whoami (Username)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="sudo apt update">sudo apt update (Check updates)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="uname -a">uname -a (Kernel info)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="help">help (List commands)</button>
+            <button type="button" class="cmd-chip quick-cmd-btn" data-cmd="clear">clear (Wipe screen)</button>
+          </div>
+        </div>
+
+        <div class="terminal-input-bar">
+          <span style="color: #4ade80; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600;">newcomer@mint-xfce:~$</span>
+          <input type="text" id="terminal-input" class="term-input" placeholder="Type a command (or click a suggestion above)..." aria-label="Simulated terminal input">
+          <button type="button" id="term-run-btn" class="term-run-btn">▶ Run</button>
+        </div>
+      </div>
+
+      <!-- Knowledge Check 5 -->
+      <div class="quiz-box" data-quiz-id="quiz-5">
+        <div class="quiz-header">
+          <span class="quiz-icon">❓</span>
+          <div class="quiz-question">Do you ever HAVE to use the terminal to browse the web, write documents, or play games in Linux Mint?</div>
+        </div>
+        <div class="quiz-options">
+          <button type="button" class="quiz-option-btn" data-val="a">
+            <span>A)</span> Yes, you must type code every time you want to open a browser.
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="b">
+            <span>B)</span> Yes, you cannot see images without using the command line.
+          </button>
+          <button type="button" class="quiz-option-btn" data-val="c">
+            <span>C)</span> No! 100% of everyday tasks can be done visually with your mouse. The terminal is just an optional power tool.
+          </button>
+        </div>
+        <div class="quiz-footer">
+          <div class="quiz-feedback"></div>
+          <button type="button" class="quiz-reset-btn">↺ Try Again</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- Newcomer Certificate / Readiness Summary -->
+    <section class="certificate-section">
+      <div class="cert-badge">🎓</div>
+      <h3>You're Ready for Linux Mint XFCE!</h3>
+      <p id="cert-percent-text">0 of 10 Milestones Completed (0%)</p>
+      <p>
+        Every time you interact with a simulator or complete a quiz, your progress is recorded right here on your device. Click any milestone to jump right to it!
+      </p>
+
+      <div class="readiness-checklist">
+        <div class="check-item" id="check-task-snapshot" data-target="module-1"><span class="check-icon">○</span> Timeshift Snapshot Explored</div>
+        <div class="check-item" id="check-quiz-1" data-target="module-1"><span class="check-icon">○</span> Safe Updates Knowledge Mastered</div>
+        <div class="check-item" id="check-task-whisker" data-target="module-2"><span class="check-icon">○</span> Whisker Menu App Launched</div>
+        <div class="check-item" id="check-quiz-2" data-target="module-2"><span class="check-icon">○</span> App Launching Knowledge Mastered</div>
+        <div class="check-item" id="check-task-software" data-target="module-3"><span class="check-icon">○</span> 1-Click App Installed in Store</div>
+        <div class="check-item" id="check-quiz-3" data-target="module-3"><span class="check-icon">○</span> Software Safety Knowledge Mastered</div>
+        <div class="check-item" id="check-task-thunar" data-target="module-4"><span class="check-icon">○</span> Thunar Home Folder Navigated</div>
+        <div class="check-item" id="check-quiz-4" data-target="module-4"><span class="check-icon">○</span> File System Knowledge Mastered</div>
+        <div class="check-item" id="check-task-terminal" data-target="module-5"><span class="check-icon">○</span> Fear-Free Command Executed</div>
+        <div class="check-item" id="check-quiz-5" data-target="module-5"><span class="check-icon">○</span> Terminal Myths Demystified</div>
+      </div>
+
+      <button type="button" class="cert-reset-btn" id="btn-reset-progress">
+        🔄 Reset Progress Checklist
+      </button>
+
+      <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1.25rem;">
+        🍃 Linux Mint XFCE is free, respects your privacy, and gives your PC new life.
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Interactive App/File Preview Modal Dialog -->
+  <div id="mock-preview-modal" class="mock-modal-overlay">
+    <div class="mock-modal-dialog">
+      <div class="xfce-titlebar">
+        <div class="xfce-title" id="mock-modal-title">
+          <span class="xfce-title-icon">🚀</span>
+          <span>Application Preview</span>
+        </div>
+        <div class="xfce-controls">
+          <button type="button" class="xfce-btn xfce-btn-close" id="mock-modal-close-btn" title="Close Window" aria-label="Close Window"></button>
+        </div>
+      </div>
+      <div class="xfce-body" id="mock-modal-body">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Readiness Graduation Celebration Modal -->
+  <div id="completion-modal" class="mock-modal-overlay" style="display: none;">
+    <div class="mock-modal-dialog cert-modal-dialog">
+      <div class="xfce-titlebar">
+        <div class="xfce-title">
+          <span class="xfce-title-icon">🎓</span>
+          <span>Linux Mint XFCE Graduation Certificate</span>
+        </div>
+        <div class="xfce-controls">
+          <button type="button" class="xfce-btn xfce-btn-close" id="completion-modal-close-btn" title="Close Window" aria-label="Close Window"></button>
+        </div>
+      </div>
+      <div class="xfce-body cert-modal-body">
+        <div style="text-align: center; padding: 1.5rem 0.5rem;">
+          <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🎓🍃</div>
+          <h3 style="font-size: 1.4rem; color: var(--mint-primary); margin-bottom: 0.5rem;">Congratulations! You Are Ready for Linux Mint XFCE!</h3>
+          <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">
+            You have conquered every simulator, aced the knowledge quizzes, and proved that Linux Mint is safe, visual, and beginner-friendly.
+          </p>
+          <div class="reassurance-banner" style="margin-bottom: 1.25rem;">
+            <div class="reassurance-pill"><span class="reassurance-icon">🛡️</span><span>Timeshift Protected</span></div>
+            <div class="reassurance-pill"><span class="reassurance-icon">🚀</span><span>Whisker Menu Mastered</span></div>
+            <div class="reassurance-pill"><span class="reassurance-icon">📦</span><span>Safe App Store Ready</span></div>
+            <div class="reassurance-pill"><span class="reassurance-icon">📂</span><span>Home Folder Organized</span></div>
+            <div class="reassurance-pill"><span class="reassurance-icon">💻</span><span>Zero Terminal Panic</span></div>
+          </div>
+          <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+            <a href="https://linuxmint.com/download.php" target="_blank" rel="noopener noreferrer" class="sim-btn sim-btn-primary" style="text-decoration: none;">Download Linux Mint XFCE ↗</a>
+            <button type="button" class="sim-btn modal-dismiss-btn" id="completion-modal-dismiss-btn">Keep Exploring Simulators</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div>Linux Mint XFCE Beginner Guide & Interactive Simulators</div>
+      <div class="footer-links">
+        <a href="https://linuxmint.com/documentation.php" target="_blank" rel="noopener noreferrer">Official Mint Documentation ↗</a>
+        <a href="https://linuxmint.com/download.php" target="_blank" rel="noopener noreferrer">Download Linux Mint XFCE ↗</a>
+        <a href="https://forums.linuxmint.com/" target="_blank" rel="noopener noreferrer">Friendly Mint Community Forums ↗</a>
+      </div>
+      <div style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">
+        Pure vanilla HTML, CSS, and JS. Zero dependencies. Fast on any computer or mobile device.
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
