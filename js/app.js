@@ -1909,18 +1909,26 @@
   }
 
   function initChecklistClicks() {
+    function jumpToTarget(item) {
+      const targetId = item.getAttribute('data-target');
+      if (!targetId) return;
+      const targetEl = document.getElementById(targetId);
+      if (!targetEl) return;
+      targetEl.scrollIntoView({ behavior: 'smooth' });
+      targetEl.style.outline = '2px solid var(--mint-primary)';
+      setTimeout(function () {
+        targetEl.style.outline = 'none';
+      }, 1500);
+    }
+
     document.querySelectorAll('.readiness-checklist .check-item').forEach(function (item) {
       item.onclick = function () {
-        const targetId = item.getAttribute('data-target');
-        if (targetId) {
-          const targetEl = document.getElementById(targetId);
-          if (targetEl) {
-            targetEl.scrollIntoView({ behavior: 'smooth' });
-            targetEl.style.outline = '2px solid var(--mint-primary)';
-            setTimeout(function () {
-              targetEl.style.outline = 'none';
-            }, 1500);
-          }
+        jumpToTarget(item);
+      };
+      item.onkeydown = function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          jumpToTarget(item);
         }
       };
     });
