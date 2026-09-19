@@ -613,7 +613,7 @@
           const appDesc = item.getAttribute('data-desc') || '';
 
           if (feedbackToast) {
-            feedbackToast.style.display = 'block';
+            feedbackToast.style.display = 'flex';
             feedbackToast.innerHTML = '🚀 <strong>Launched:</strong> "' + appName + '" opened on your desktop!';
             setTimeout(function () {
               feedbackToast.style.display = 'none';
@@ -1244,7 +1244,7 @@
         markProgress('task-thunar');
       } else {
         if (fileInfoToast) {
-          fileInfoToast.style.display = 'block';
+          fileInfoToast.style.display = 'flex';
           fileInfoToast.innerHTML = '📄 <strong>' + name + '</strong>: ' + (desc || 'File in your Home directory.');
           setTimeout(function () {
             fileInfoToast.style.display = 'none';
