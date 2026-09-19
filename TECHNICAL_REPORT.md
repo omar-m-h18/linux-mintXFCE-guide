@@ -251,6 +251,29 @@ $$\text{Type Selection} \longrightarrow \text{Target Drive} \longrightarrow \tex
     $$\text{Percentage} = \left(\frac{\sum \text{Checked Items}}{6}\right) \times 100\%$$
   - Completion modal activates automatically upon reaching 100% completion.
 
+### 5.7 Level Progression State Machine (Strict Sequential)
+The site is converted from a free-roam sandbox into a **strictly gated learning path**. Progression is computed — never stored — from the existing milestone flags in `appState.progress`.
+
+- **Data Model**: `LEVELS` in `js/app.js` defines exactly 5 levels, each mapped to one module and two completion gates:
+  ```javascript
+  const LEVELS = [
+    { level: 1, moduleId: 'module-1', label: 'First Steps & Safety Net', tasks: ['task-snapshot', 'quiz-1'] },
+    { level: 2, moduleId: 'module-2', label: 'Whisker Menu & Navigation', tasks: ['task-whisker', 'quiz-2'] },
+    { level: 3, moduleId: 'module-3', label: 'Installing Apps Safely', tasks: ['task-software', 'quiz-3'] },
+    { level: 4, moduleId: 'module-4', label: 'Thunar & Your Files', tasks: ['task-thunar', 'quiz-4'] },
+    { level: 5, moduleId: 'module-5', label: 'Demystifying the Terminal', tasks: ['task-terminal', 'quiz-5'] }
+  ];
+  ```
+- **Unlock Predicate** (purely derived):
+  $$\text{Unlocked}(n) \iff \text{CompletedLevelCount}(n-1) \ge n-1$$
+  where $\text{CompletedLevelCount} = |\{l \in LEVELS : \forall t \in l.tasks, \; progress[t]\}|$.
+- **Rendering Pipeline** (driven by `updateProgressUI`):
+  1. `applyLevelLocks()` toggles `.is-locked` on module cards and shows the `🔒` overlay; overlay clicks smooth-scroll to the required previous level.
+  2. `renderLevelPath()` rebuilds the 6-node Learning Path strip (5 levels + Graduation) with `done` / `current` / `locked` states.
+  3. Nav progress widget exposes the current level badge (`Level N of 5` or `🎓 Graduated`).
+  4. Crossing a level boundary fires a celebratory toast; graduating fires the completion modal.
+- **State Stability**: Because unlock state is re-derived on every `updateProgressUI` call, page reloads, quiz "Try Again" resets, and the "Reset Progress Checklist" button all restore correct locking instantly with zero extra persistence keys.
+
 ---
 
 ## 6. Defensive Engineering & Hardening History
@@ -296,5 +319,8 @@ Any future modifications must pass this manual verification checklist:
 - [x] Audit the entire application to verify zero occurrences of music, songs, or music platforms project-wide.
 - [x] Execute `pwd`, `ls`, `dir`, `cls`, and `neofetch` in the Terminal Simulator.
 - [x] Answer all 5 quizzes correctly, test the retry button on deliberate mistakes, and complete the 6-point readiness checklist.
+- [x] Verify strict level gating: Level 1 unlocked at load, Levels 2–5 locked with non-interactive overlays.
+- [x] Walk Levels 1→5 sequentially; confirm level-up toasts, downstream unlocks, and final graduation modal.
+- [x] Press "Try Again" on a finished quiz and confirm downstream levels re-lock; press "Reset Progress" and confirm only Level 1 remains unlocked.
 - [x] Confirm zero console warnings or exceptions.
 

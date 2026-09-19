@@ -6,7 +6,7 @@
   <meta name="description" content="An interactive, friendly, hands-on guide to Linux Mint XFCE Edition for complete newcomers. Zero terminal required, 100% everyday computing confidence.">
   <meta name="keywords" content="Linux Mint, XFCE, Linux for beginners, Windows to Linux, Whisker Menu, Software Manager, Thunar">
   <title>Linux Mint XFCE Guide — The Friendly Newcomer Playground</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -22,6 +22,7 @@
       </a>
       <div class="nav-actions">
         <div class="progress-widget" title="Your overall learning progress">
+          <span id="global-level-text" class="progress-level-text">Level 1 of 5</span>
           <div class="progress-widget-bar">
             <div class="progress-widget-fill" id="global-progress-fill"></div>
           </div>
@@ -67,6 +68,20 @@
     </div>
   </section>
 
+  <!-- Learning Path / Level Progression -->
+  <section class="level-path-section" id="level-path-section">
+    <div class="container">
+      <div class="level-path-header">
+        <span class="level-path-flag">🎯</span>
+        <h3>Your Learning Path</h3>
+        <span class="level-path-hint">Master each level (simulator + quiz) to unlock the next one.</span>
+      </div>
+      <div class="level-path" id="level-path">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+  </section>
+
   <!-- Quick Windows-to-Mint Translator Section -->
   <section class="translator-section" id="rosetta-stone">
     <div class="container">
@@ -101,9 +116,9 @@
   <main class="container modules-wrapper">
 
     <!-- MODULE 1: First Steps & Safety Net -->
-    <article class="module-card" id="module-1">
+    <article class="module-card" id="module-1" data-level="1">
       <div class="module-badge-row">
-        <span class="module-number">Module 1</span>
+        <span class="module-number">Level 1</span>
         <span class="module-status" id="mod-status-1">● In Progress</span>
       </div>
       <div class="module-header">
@@ -202,12 +217,21 @@
           <button type="button" class="quiz-reset-btn">↺ Try Again</button>
         </div>
       </div>
+
+      <div class="level-lock-overlay">
+        <div class="level-lock-box">
+          <div class="level-lock-icon">🔒</div>
+          <div class="level-lock-title">Level Locked</div>
+          <div class="level-lock-desc">Finish the previous level to unlock this walkthrough.</div>
+          <button type="button" class="sim-btn level-lock-goto-btn">View Required Level</button>
+        </div>
+      </div>
     </article>
 
     <!-- MODULE 2: The Whisker Menu & Desktop Navigation -->
-    <article class="module-card" id="module-2">
+    <article class="module-card" id="module-2" data-level="2">
       <div class="module-badge-row">
-        <span class="module-number">Module 2</span>
+        <span class="module-number">Level 2</span>
         <span class="module-status" id="mod-status-2">● In Progress</span>
       </div>
       <div class="module-header">
@@ -323,12 +347,21 @@
           <button type="button" class="quiz-reset-btn">↺ Try Again</button>
         </div>
       </div>
+
+      <div class="level-lock-overlay">
+        <div class="level-lock-box">
+          <div class="level-lock-icon">🔒</div>
+          <div class="level-lock-title">Level Locked</div>
+          <div class="level-lock-desc">Finish the previous level to unlock this walkthrough.</div>
+          <button type="button" class="sim-btn level-lock-goto-btn">View Required Level</button>
+        </div>
+      </div>
     </article>
 
     <!-- MODULE 3: Installing Apps Safely -->
-    <article class="module-card" id="module-3">
+    <article class="module-card" id="module-3" data-level="3">
       <div class="module-badge-row">
-        <span class="module-number">Module 3</span>
+        <span class="module-number">Level 3</span>
         <span class="module-status" id="mod-status-3">● In Progress</span>
       </div>
       <div class="module-header">
@@ -415,12 +448,21 @@
           <button type="button" class="quiz-reset-btn">↺ Try Again</button>
         </div>
       </div>
+
+      <div class="level-lock-overlay">
+        <div class="level-lock-box">
+          <div class="level-lock-icon">🔒</div>
+          <div class="level-lock-title">Level Locked</div>
+          <div class="level-lock-desc">Finish the previous level to unlock this walkthrough.</div>
+          <button type="button" class="sim-btn level-lock-goto-btn">View Required Level</button>
+        </div>
+      </div>
     </article>
 
     <!-- MODULE 4: Where Are My Files? (Thunar) -->
-    <article class="module-card" id="module-4">
+    <article class="module-card" id="module-4" data-level="4">
       <div class="module-badge-row">
-        <span class="module-number">Module 4</span>
+        <span class="module-number">Level 4</span>
         <span class="module-status" id="mod-status-4">● In Progress</span>
       </div>
       <div class="module-header">
@@ -518,12 +560,21 @@
           <button type="button" class="quiz-reset-btn">↺ Try Again</button>
         </div>
       </div>
+
+      <div class="level-lock-overlay">
+        <div class="level-lock-box">
+          <div class="level-lock-icon">🔒</div>
+          <div class="level-lock-title">Level Locked</div>
+          <div class="level-lock-desc">Finish the previous level to unlock this walkthrough.</div>
+          <button type="button" class="sim-btn level-lock-goto-btn">View Required Level</button>
+        </div>
+      </div>
     </article>
 
     <!-- MODULE 5: Demystifying the Terminal -->
-    <article class="module-card" id="module-5">
+    <article class="module-card" id="module-5" data-level="5">
       <div class="module-badge-row">
-        <span class="module-number">Module 5</span>
+        <span class="module-number">Level 5</span>
         <span class="module-status" id="mod-status-5">● In Progress</span>
       </div>
       <div class="module-header">
@@ -616,10 +667,19 @@
           <button type="button" class="quiz-reset-btn">↺ Try Again</button>
         </div>
       </div>
+
+      <div class="level-lock-overlay">
+        <div class="level-lock-box">
+          <div class="level-lock-icon">🔒</div>
+          <div class="level-lock-title">Level Locked</div>
+          <div class="level-lock-desc">Finish the previous level to unlock this walkthrough.</div>
+          <button type="button" class="sim-btn level-lock-goto-btn">View Required Level</button>
+        </div>
+      </div>
     </article>
 
     <!-- Newcomer Certificate / Readiness Summary -->
-    <section class="certificate-section">
+    <section class="certificate-section" id="certificate-section">
       <div class="cert-badge">🎓</div>
       <h3>You're Ready for Linux Mint XFCE!</h3>
       <p id="cert-percent-text">0 of 10 Milestones Completed (0%)</p>
@@ -650,6 +710,9 @@
     </section>
 
   </main>
+
+  <!-- Level-Up Celebration Toast -->
+  <div id="level-toast" class="level-toast" style="display: none;" role="status" aria-live="polite"></div>
 
   <!-- Interactive App/File Preview Modal Dialog -->
   <div id="mock-preview-modal" class="mock-modal-overlay">
@@ -719,6 +782,6 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

@@ -1569,6 +1569,189 @@
     'quiz-5'
   ];
 
+  // --- 12.5 LEVEL PROGRESSION SUBSYSTEM ---
+  // Strict sequential path: a level unlocks only when the previous level's
+  // simulator task AND quiz are both complete. Unlock state is always DERIVED
+  // from appState.progress (never stored separately).
+  const LEVELS = [
+    { level: 1, moduleId: 'module-1', label: 'First Steps & Safety Net', tasks: ['task-snapshot', 'quiz-1'] },
+    { level: 2, moduleId: 'module-2', label: 'Whisker Menu & Navigation', tasks: ['task-whisker', 'quiz-2'] },
+    { level: 3, moduleId: 'module-3', label: 'Installing Apps Safely', tasks: ['task-software', 'quiz-3'] },
+    { level: 4, moduleId: 'module-4', label: 'Thunar & Your Files', tasks: ['task-thunar', 'quiz-4'] },
+    { level: 5, moduleId: 'module-5', label: 'Demystifying the Terminal', tasks: ['task-terminal', 'quiz-5'] }
+  ];
+  const TOTAL_LEVELS = LEVELS.length;
+  const LEVELS_BY_NUM = {};
+  LEVELS.forEach(function (l) { LEVELS_BY_NUM[l.level] = l; });
+  let lastCompletedLevels = -1;
+
+  function isLevelComplete(levelDef) {
+    return levelDef.tasks.every(function (t) { return !!appState.progress[t]; });
+  }
+
+  function getCompletedLevelCount() {
+    return LEVELS.filter(isLevelComplete).length;
+  }
+
+  function getCurrentLevelNum() {
+    return Math.min(TOTAL_LEVELS, getCompletedLevelCount() + 1);
+  }
+
+  function isLevelUnlocked(levelNum) {
+    return getCompletedLevelCount() >= levelNum - 1;
+  }
+
+  function flashAndScroll(el) {
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth' });
+    el.style.outline = '2px solid var(--mint-primary)';
+    setTimeout(function () {
+      el.style.outline = 'none';
+    }, 1500);
+  }
+
+  function showLevelToast(message) {
+    const toast = document.getElementById('level-toast');
+    if (!toast) return;
+    toast.innerHTML = message;
+    toast.style.display = 'flex';
+    clearTimeout(showLevelToast._timer);
+    showLevelToast._timer = setTimeout(function () {
+      toast.style.display = 'none';
+    }, 3500);
+  }
+
+  function applyLevelLocks() {
+    const completedCount = getCompletedLevelCount();
+    document.querySelectorAll('.module-card[data-level]').forEach(function (card) {
+      const levelNum = parseInt(card.getAttribute('data-level'), 10);
+      const unlocked = completedCount >= levelNum - 1;
+      const overlay = card.querySelector('.level-lock-overlay');
+
+      if (unlocked) {
+        card.classList.remove('is-locked');
+        if (overlay) overlay.classList.remove('show');
+      } else {
+        card.classList.add('is-locked');
+        if (overlay) {
+          overlay.classList.add('show');
+          const reqLevel = levelNum - 1;
+          const descEl = overlay.querySelector('.level-lock-desc');
+          if (descEl) {
+            descEl.textContent = 'Finish Level ' + reqLevel + ' (simulator + quiz) to unlock this walkthrough.';
+          }
+          const gotoBtn = overlay.querySelector('.level-lock-goto-btn');
+          if (gotoBtn) {
+            if (reqLevel >= 1) {
+              gotoBtn.style.display = 'inline-flex';
+              gotoBtn.textContent = 'Go to Level ' + reqLevel;
+            } else {
+              gotoBtn.style.display = 'none';
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderLevelPath() {
+    const track = document.getElementById('level-path');
+    if (!track) return;
+    const completedCount = getCompletedLevelCount();
+    const parts = [];
+
+    LEVELS.forEach(function (levelDef, idx) {
+      const num = levelDef.level;
+      const isDone = completedCount > idx;
+      const isCurrent = completedCount === idx;
+      const isLocked = completedCount < idx;
+
+      let stateClass = 'level-node';
+      if (isDone) stateClass += ' done';
+      else if (isCurrent) stateClass += ' current';
+      else stateClass += ' locked';
+
+      parts.push(
+        '<button type="button" class="' + stateClass + '" data-level="' + num + '" title="' +
+        (isDone ? 'Level ' + num + ' complete — ' + levelDef.label : isCurrent ? 'Level ' + num + ' — ' + levelDef.label : 'Locked until Level ' + num + ' is completed') + '">' +
+        '  <span class="level-node-icon">' + (isDone ? '✓' : (isLocked ? '🔒' : num)) + '</span>' +
+        '  <span class="level-node-label">Level ' + num + '</span>' +
+        '  <span class="level-node-sub">' + levelDef.label + '</span>' +
+        '</button>'
+      );
+
+      if (idx < LEVELS.length - 1) {
+        parts.push('<div class="level-path-conn' + (completedCount > idx ? ' done' : '') + '"></div>');
+      }
+    });
+
+    const gradDone = completedCount >= TOTAL_LEVELS;
+    const gradState = gradDone ? 'done' : (completedCount === TOTAL_LEVELS - 1 ? 'current' : 'locked');
+    parts.push(
+      '<button type="button" class="level-node graduation-node ' + gradState + '" title="Graduation">' +
+      '  <span class="level-node-icon">' + (gradDone ? '✓' : '🎓') + '</span>' +
+      '  <span class="level-node-label">Graduate</span>' +
+      '  <span class="level-node-sub">Certificate</span>' +
+      '</button>'
+    );
+
+    track.innerHTML = parts.join('');
+  }
+
+  function initLevelSystem() {
+    // Locked module overlay -> jump to the required previous level
+    document.querySelectorAll('.module-card[data-level]').forEach(function (card) {
+      const overlay = card.querySelector('.level-lock-overlay');
+      if (!overlay) return;
+      overlay.onclick = function () {
+        const levelNum = parseInt(card.getAttribute('data-level'), 10);
+        const prevModule = document.getElementById('module-' + (levelNum - 1));
+        if (prevModule) flashAndScroll(prevModule);
+      };
+      const gotoBtn = overlay.querySelector('.level-lock-goto-btn');
+      if (gotoBtn) {
+        gotoBtn.onclick = function (e) {
+          e.stopPropagation();
+          const levelNum = parseInt(card.getAttribute('data-level'), 10);
+          const prevModule = document.getElementById('module-' + (levelNum - 1));
+          if (prevModule) flashAndScroll(prevModule);
+        };
+      }
+    });
+
+    // Learning path node clicks
+    const track = document.getElementById('level-path');
+    if (track) {
+      track.onclick = function (e) {
+        const node = e.target.closest('.level-node');
+        if (!node) return;
+        const levelNum = node.getAttribute('data-level');
+        const completedCount = getCompletedLevelCount();
+
+        if (levelNum) {
+          const num = parseInt(levelNum, 10);
+          if (completedCount < num - 1) {
+            const prevModule = document.getElementById('module-' + (num - 1));
+            if (prevModule) flashAndScroll(prevModule);
+          } else {
+            const targetModule = document.getElementById('module-' + num);
+            if (targetModule) flashAndScroll(targetModule);
+          }
+        } else {
+          // Graduation node
+          if (completedCount >= TOTAL_LEVELS) {
+            const certSection = document.getElementById('certificate-section');
+            if (certSection) flashAndScroll(certSection);
+          } else {
+            const currentNum = Math.min(TOTAL_LEVELS, completedCount + 1);
+            const targetModule = document.getElementById('module-' + currentNum);
+            if (targetModule) flashAndScroll(targetModule);
+          }
+        }
+      };
+    }
+  }
+
   function markProgress(taskId) {
     appState.progress[taskId] = true;
     safeStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(appState.progress));
@@ -1602,10 +1785,18 @@
     const progressFill = document.getElementById('global-progress-fill');
     const progressText = document.getElementById('global-progress-text');
     const certPercent = document.getElementById('cert-percent-text');
+    const levelText = document.getElementById('global-level-text');
 
     if (progressFill) progressFill.style.width = pct + '%';
     if (progressText) progressText.textContent = pct + '% Mastered';
     if (certPercent) certPercent.textContent = completedCount + ' of ' + total + ' Milestones Completed (' + pct + '%)';
+    if (levelText) {
+      if (getCompletedLevelCount() >= TOTAL_LEVELS) {
+        levelText.textContent = '🎓 Graduated';
+      } else {
+        levelText.textContent = 'Level ' + getCurrentLevelNum() + ' of ' + TOTAL_LEVELS;
+      }
+    }
 
     // Update readiness checklist items
     TRACKED_TASKS.forEach(function (task) {
@@ -1622,29 +1813,42 @@
       }
     });
 
-    // Update module status indicators
-    const modMappings = {
-      'mod-status-1': ['task-snapshot', 'quiz-1'],
-      'mod-status-2': ['task-whisker', 'quiz-2'],
-      'mod-status-3': ['task-software', 'quiz-3'],
-      'mod-status-4': ['task-thunar', 'quiz-4'],
-      'mod-status-5': ['task-terminal', 'quiz-5']
-    };
+    // Update module status indicators (level-aware)
+    document.querySelectorAll('.module-card[data-level]').forEach(function (card) {
+      const levelNum = parseInt(card.getAttribute('data-level'), 10);
+      const statusEl = document.getElementById('mod-status-' + levelNum);
+      if (!statusEl) return;
+      const levelDef = LEVELS_BY_NUM[levelNum];
+      if (!levelDef) return;
+      const allDone = levelDef.tasks.every(function (t) { return !!appState.progress[t]; });
 
-    Object.keys(modMappings).forEach(function (elemId) {
-      const statusEl = document.getElementById(elemId);
-      if (statusEl) {
-        const tasks = modMappings[elemId];
-        const allDone = tasks.every(function (t) { return appState.progress[t]; });
-        if (allDone) {
-          statusEl.className = 'module-status done';
-          statusEl.innerHTML = '✓ Completed';
-        } else {
-          statusEl.className = 'module-status';
-          statusEl.innerHTML = '● In Progress';
-        }
+      if (!isLevelUnlocked(levelNum)) {
+        statusEl.className = 'module-status locked';
+        statusEl.innerHTML = '🔒 Locked';
+      } else if (allDone) {
+        statusEl.className = 'module-status done';
+        statusEl.innerHTML = '✓ Completed';
+      } else {
+        statusEl.className = 'module-status';
+        statusEl.innerHTML = '● In Progress';
       }
     });
+
+    // Apply strict level locks + refresh the learning path
+    applyLevelLocks();
+    renderLevelPath();
+
+    // Level-up celebration feedback
+    const levelCompletedCount = getCompletedLevelCount();
+    if (fromUserAction && levelCompletedCount > lastCompletedLevels && lastCompletedLevels >= 0) {
+      if (levelCompletedCount >= TOTAL_LEVELS) {
+        showLevelToast('🎓 Level ' + TOTAL_LEVELS + ' Complete! You have graduated from the Newcomer Playground.');
+      } else if (levelCompletedCount > 0) {
+        const nextDef = LEVELS[levelCompletedCount];
+        showLevelToast('⭐ Level ' + levelCompletedCount + ' Complete — Level ' + nextDef.level + ' Unlocked!');
+      }
+    }
+    lastCompletedLevels = levelCompletedCount;
 
     // Trigger completion celebration modal if 100% achieved by user action
     if (pct === 100 && fromUserAction) {
@@ -1711,6 +1915,7 @@
       initTerminalSimulator();
       initQuizzes();
       initChecklistClicks();
+      initLevelSystem();
       updateProgressUI(false);
     } catch (err) {
       if (typeof console !== 'undefined' && console.error) {

@@ -77,6 +77,12 @@ This **Linux Mint XFCE Guide** lets you test-drive Linux Mint XFCE right inside 
 - Authentic Linux Mint styling using official Mint-Y green accents.
 - Seamless one-click dark/light toggle with automatic preference detection.
 
+### 8. 🎯 Strict Level Progression
+- A guided 5-level learning path: Level 1 (Safety Net) → Level 5 (Terminal).
+- Levels unlock **only** after a module's simulator + quiz are both mastered.
+- Visual learning-path strip with done / current / locked states, `Level N of 5` nav badge, level-up toasts, and a graduation celebration.
+- Unlock state is derived from progress — no extra storage, re-locks correctly on reset or retry.
+
 ---
 
 ## 🚀 Quick Start (Zero Installation)

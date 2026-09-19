@@ -26,6 +26,7 @@ The **Linux Mint XFCE Guide** is a 100% client-side, interactive educational app
 4. **Thunar File Manager Sandbox**: Interactive directory navigation explaining the Linux file hierarchy (`/home/username`) without drive letters.
 5. **Demystified Safe Terminal**: A friendly, sandbox command prompt featuring Windows-to-Linux command translations, plain-English explanations, and explicit reassurance that the terminal is strictly optional.
 6. **Knowledge Check Quizzes & Readiness Checklist**: Instant interactive validation with cheerful feedback and persistent progress tracking.
+7. **Strict Level Progression**: The five modules run as Levels 1–5 on a guided learning path. Level 1 is always open; every subsequent level is hard-locked until the previous level's simulator task **and** quiz are both mastered. A completion toast fires on every level-up, and graduating Level 5 unlocks the certificate celebration.
 
 ---
 
@@ -153,6 +154,13 @@ An interactive concept comparison table mapping familiar Windows paradigms to Li
   - Knowing where to get help (Linux Mint Community Forums).
 - Interactive celebration dialog triggered upon 100% completion.
 
+### 4.10 Level Progression & Guided Unlocking
+- **Structure**: `LEVELS` maps Levels 1–5 to the five module cards (`task-snapshot`+`quiz-1`, `task-whisker`+`quiz-2`, `task-software`+`quiz-3`, `task-thunar`+`quiz-4`, `task-terminal`+`quiz-5`), plus a Graduation node.
+- **Strict gating**: A module is non-interactive (dimmed under a `🔒` overlay) until the previous level is fully complete. Clicking a locked card jumps to the blocking level.
+- **Visual learning path**: A 6-node strip after the hero renders `done` / `current` / `locked` states and jumps to any unlocked module on click.
+- **Feedback**: Level-up toast on each boundary crossing; graduation modal when all five levels are done. The sticky-nav widget shows `Level N of 5` (or `🎓 Graduated`) with the overall completion bar.
+- **Derived state**: Unlock status is always recomputed from milestone flags — never persisted — so reloads, quiz retries, and progress resets re-lock correctly with no extra storage keys.
+
 ---
 
 ## 5. Storage Schema & Keys
@@ -165,6 +173,8 @@ All state keys are accessed via `safeStorage`:
 | `mint_quiz_progress` | JSON Object: `{ "quiz-1": true, ... }` | Tracks completed quizzes |
 | `mint_checklist_progress` | JSON Array: `["check-1", "check-2"]` | Tracks completed readiness checklist items |
 | `mint_installed_apps` | JSON Array: `["vlc", "libreoffice"]` | Persists custom installed apps in Software Manager |
+
+> **Note**: Level-unlock state is **derived**, not stored. The level subsystem recomputes which modules are unlocked purely from the milestone flags in `mint_guide_progress_v2` (+ synced quiz/checklist keys), so no dedicated level-storage key exists.
 
 ---
 

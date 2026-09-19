@@ -75,6 +75,7 @@ linux-mintXFCE-guide/
 - **`APPS`** (Software Manager): Array of software package objects (`{ id, name, cat, icon, desc, rating, size, type, installed }`).
 - **`WHISKER_APPS`** (Menu Launcher): Array of launcher items (`{ name, cat, icon, desc }`).
 - **`QUIZ_DATA`** (Knowledge Checks): Object mapping quiz IDs (`quiz-1` through `quiz-5`) to `{ answer: 'a'|'b'|'c', feedback: '...' }`.
+- **`LEVELS`** (Level Progression): Array of level descriptors `{ level, moduleId, label, tasks: [taskId, quizId] }` defining the strict 5-level unlock path. **Unlock state is derived** from milestone flags in `appState.progress` via `isLevelUnlocked()`, `getCompletedLevelCount()`, `applyLevelLocks()`, and `renderLevelPath()` — never stored separately.
 
 ---
 
@@ -135,6 +136,20 @@ To create a new navigable folder or previewable file:
    ```
 3. The UI will automatically render the card, categorize it, enable search indexing, and attach install/uninstall lifecycle listeners.
 
+### Recipe 4: Altering the Level Progression Path
+The level system is fully data-driven — never hand-edit the lock overlays in `index.html`.
+1. Open `const LEVELS = [ ... ]` in `js/app.js` (section 12.5).
+2. Edit a descriptor to change which gates a level requires, or to retitle a module:
+   ```javascript
+   { level: 2, moduleId: 'module-2', label: 'Whisker Menu & Navigation', tasks: ['task-whisker', 'quiz-2'] }
+   ```
+3. Constraints when editing:
+   - Levels are unlocked **in array order** (level *n* requires level *n−1* complete) — never reorder without updating `moduleId`/`tasks`.
+   - `tasks` must reference real milestone ids present in `TRACKED_TASKS` (a simulator `task-*` id plus its `quiz-*` id).
+   - Adding a level requires a matching `.module-card[data-level]` block; removing one requires deleting its module card from `index.html`.
+   - To widen the path, increment the graduation threshold by adding levels to `LEVELS` — the graduation node re-derives automatically.
+4. Never introduce new storage keys for lock state; unlocks must stay derived from `appState.progress`.
+
 ---
 
 ## 5. Verification & Testing Matrix for AI Agents
@@ -151,6 +166,9 @@ Whenever making changes, an AI agent must perform the following self-checks:
 | **Thunar Breadcrumbs** | Clicking breadcrumbs navigates to parent directories | Verify `renderBreadcrumbs()` click handler |
 | **Quiz Retries** | Clicking "Try Again" clears selections and error banner | Verify `initQuizzes()` reset logic |
 | **Readiness Percentage** | Checking boxes increments progress from 0% to 100% | Verify `updateReadinessProgress()` computation |
+| **Level Locking** | Only Level 1 interactive at load; Levels 2–5 dimmed under `🔒` overlays | Verify `applyLevelLocks()` toggling `.is-locked` |
+| **Level Unlock Flow** | Completing a level's task + quiz unlocks the next, fires a toast, updates the path | Complete a full walkthrough; inspect `getCompletedLevelCount()` |
+| **Level Re-Lock** | "Try Again" on a finishing quiz (or progress reset) re-derives locks to prior state | Verify `updateProgressUI()` recomputes without stale unlocks |
 
 ---
 

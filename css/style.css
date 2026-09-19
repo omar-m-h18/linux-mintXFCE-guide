@@ -1660,3 +1660,261 @@ button {
     padding: 1.25rem;
   }
 }
+
+/* =========================================================
+   Level Progression Subsystem
+   Strict sequential unlocking: Level N unlocks only when
+   Level N-1's simulator task AND quiz are both complete.
+   ========================================================= */
+
+.progress-level-text {
+  font-weight: 700;
+  color: var(--mint-primary);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.level-path-section {
+  padding: 2.5rem 0 1rem;
+}
+
+.level-path-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.level-path-flag {
+  font-size: 1.4rem;
+}
+
+.level-path-header h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.level-path-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  width: 100%;
+}
+
+.level-path {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 0;
+}
+
+.level-node {
+  flex: 1 1 140px;
+  max-width: 160px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.9rem 0.7rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.level-node:hover:not(.locked) {
+  border-color: var(--mint-primary);
+  transform: translateY(-2px);
+  background: var(--mint-light);
+}
+
+.level-node .level-node-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.level-node .level-node-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.level-node .level-node-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.3;
+}
+
+.level-node.current {
+  border-color: var(--mint-primary);
+  background: var(--mint-light);
+  box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.15);
+}
+
+.level-node.current .level-node-icon {
+  background: var(--mint-primary);
+  border-color: var(--mint-primary);
+  color: #ffffff;
+}
+
+.level-node.done {
+  border-color: var(--mint-primary);
+}
+
+.level-node.done .level-node-icon {
+  background: var(--badge-bg);
+  border-color: var(--mint-primary);
+  color: var(--mint-primary);
+}
+
+.level-node.locked {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: var(--bg-tertiary);
+  border-style: dashed;
+}
+
+.level-path-conn {
+  height: 3px;
+  flex: 1 1 18px;
+  max-width: 42px;
+  background: var(--border-color);
+  border-radius: 2px;
+  transition: background 0.3s ease;
+}
+
+.level-path-conn.done {
+  background: var(--mint-primary);
+}
+
+.graduation-node .level-node-icon {
+  border-style: dashed;
+}
+
+/* Locked module cards */
+.module-card {
+  position: relative;
+}
+
+.module-card.is-locked:hover {
+  border-color: var(--border-color);
+}
+
+.module-card.is-locked .xfce-window,
+.module-card.is-locked .terminal-window,
+.module-card.is-locked .quiz-box,
+.module-card.is-locked .concept-grid {
+  opacity: 0.4;
+  filter: grayscale(0.4);
+}
+
+.level-lock-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(23, 27, 34, 0.28);
+  background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
+  backdrop-filter: blur(1.5px);
+  border-radius: var(--radius-lg);
+}
+
+.level-lock-overlay.show {
+  display: flex;
+}
+
+.level-lock-box {
+  text-align: center;
+  background: var(--bg-surface);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 2rem;
+  max-width: 360px;
+  box-shadow: var(--shadow-lg);
+}
+
+.level-lock-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.level-lock-title {
+  font-weight: 800;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.level-lock-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.module-status.locked {
+  color: var(--text-muted);
+}
+
+/* Level-up celebration toast */
+.level-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  z-index: 1100;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--mint-primary);
+  color: #ffffff;
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn 0.25s ease;
+  max-width: min(92vw, 540px);
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .level-path {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .level-node {
+    max-width: none;
+    flex: none;
+  }
+
+  .level-path-conn {
+    width: 3px;
+    height: 18px;
+    margin: 0 auto;
+    flex: none;
+    max-width: none;
+  }
+}
