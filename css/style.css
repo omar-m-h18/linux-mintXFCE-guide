@@ -34,6 +34,13 @@
   --danger-bg: #ffebee;
   --danger-text: #c62828;
 
+  /* Alpha Accents (theme-aware rings, glows, borders) */
+  --mint-border-soft: rgba(47, 133, 90, 0.2);
+  --mint-glow: rgba(47, 133, 90, 0.35);
+  --mint-ring: rgba(47, 133, 90, 0.15);
+  --danger-border: rgba(198, 40, 40, 0.3);
+  --danger-wash: rgba(198, 40, 40, 0.2);
+
   /* XFCE Window Chrome */
   --titlebar-bg: #2d3748;
   --titlebar-text: #edf2f7;
@@ -89,6 +96,12 @@ body.dark {
   --info-text: #93c5fd;
   --danger-bg: #3d1519;
   --danger-text: #fca5a5;
+
+  --mint-border-soft: rgba(72, 187, 120, 0.3);
+  --mint-glow: rgba(72, 187, 120, 0.45);
+  --mint-ring: rgba(72, 187, 120, 0.25);
+  --danger-border: rgba(252, 165, 165, 0.35);
+  --danger-wash: rgba(252, 165, 165, 0.15);
 
   --titlebar-bg: #161a22;
   --titlebar-text: #f1f5f9;
@@ -187,7 +200,7 @@ button {
   color: #ffffff;
   font-weight: 700;
   font-size: 1.3rem;
-  box-shadow: 0 2px 6px rgba(47, 133, 90, 0.3);
+  box-shadow: 0 2px 6px var(--mint-glow);
   flex-shrink: 0;
 }
 
@@ -282,7 +295,7 @@ button {
   font-size: 0.825rem;
   font-weight: 600;
   margin-bottom: 1.25rem;
-  border: 1px solid rgba(47, 133, 90, 0.2);
+  border: 1px solid var(--mint-border-soft);
 }
 
 .hero h2 {
@@ -383,7 +396,7 @@ button {
 .search-input:focus {
   border-color: var(--mint-primary);
   background: var(--bg-surface);
-  box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.15);
+  box-shadow: 0 0 0 3px var(--mint-ring);
 }
 
 .search-icon {
@@ -755,11 +768,11 @@ button {
 .sim-btn-danger {
   background: var(--danger-bg);
   color: var(--danger-text);
-  border-color: rgba(198, 40, 40, 0.3);
+  border-color: var(--danger-border);
 }
 
 .sim-btn-danger:hover {
-  background: rgba(198, 40, 40, 0.2);
+  background: var(--danger-wash);
 }
 
 .status-alert {
@@ -1430,7 +1443,7 @@ button {
   justify-content: center;
   font-size: 2rem;
   margin: 0 auto 1.25rem;
-  box-shadow: 0 4px 12px rgba(47, 133, 90, 0.4);
+  box-shadow: 0 4px 12px var(--mint-glow);
 }
 
 .certificate-section h3 {
@@ -1796,7 +1809,7 @@ button {
 .level-node.current {
   border-color: var(--mint-primary);
   background: var(--mint-light);
-  box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.15);
+  box-shadow: 0 0 0 3px var(--mint-ring);
 }
 
 .level-node.current .level-node-icon {
