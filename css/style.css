@@ -2015,3 +2015,12 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+/* iOS Safari auto-zooms text inputs under 16px on focus */
+@media (max-width: 768px) {
+  .search-input,
+  .whisker-search-input,
+  .term-input {
+    font-size: 16px;
+  }
+}
