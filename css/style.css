@@ -1176,6 +1176,12 @@ button {
   color: var(--mint-primary);
 }
 
+.pathbar-label {
+  color: var(--text-muted);
+  font-weight: 600;
+  user-select: none;
+}
+
 .thunar-file-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
