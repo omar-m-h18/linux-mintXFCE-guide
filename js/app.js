@@ -17,9 +17,6 @@
   // --- 1. RESILIENT STORAGE LAYER ---
   const STORAGE_KEY_THEME = 'mint_theme';
   const STORAGE_KEY_THEME_LEGACY = 'mint_guide_theme';
-  const STORAGE_KEY_PROGRESS = 'mint_guide_progress_v2';
-  const STORAGE_KEY_QUIZ = 'mint_quiz_progress';
-  const STORAGE_KEY_CHECKLIST = 'mint_checklist_progress';
   const STORAGE_KEY_APPS = 'mint_installed_apps';
 
   const safeStorage = {
@@ -59,33 +56,6 @@
   };
 
   // --- APP STATE ---
-  let initialProgress = {};
-  try {
-    const raw = safeStorage.getItem(STORAGE_KEY_PROGRESS);
-    if (raw) initialProgress = JSON.parse(raw);
-  } catch (e) {
-    initialProgress = {};
-  }
-
-  // Sync with mint_checklist_progress and mint_quiz_progress
-  try {
-    const rawChecklist = safeStorage.getItem(STORAGE_KEY_CHECKLIST);
-    if (rawChecklist) {
-      const parsedChecklist = JSON.parse(rawChecklist);
-      if (Array.isArray(parsedChecklist)) {
-        parsedChecklist.forEach(function (t) { initialProgress[t] = true; });
-      }
-    }
-    const rawQuiz = safeStorage.getItem(STORAGE_KEY_QUIZ);
-    if (rawQuiz) {
-      const parsedQuiz = JSON.parse(rawQuiz);
-      Object.keys(parsedQuiz).forEach(function (q) {
-        if (parsedQuiz[q]) initialProgress[q] = true;
-      });
-    }
-  } catch (e) {
-    // Ignore parse errors
-  }
 
   // Initial installed apps
   let initialApps = ['Firefox Web Browser'];
@@ -110,12 +80,10 @@
 
   const appState = {
     theme: initialTheme,
-    progress: initialProgress,
     timeshiftStep: 1,
     thunarCurrentPath: '/home/newcomer',
     installedApps: new Set(initialApps),
-    terminalHistory: [],
-    celebrationShown: false
+    terminalHistory: []
   };
 
   // --- 2. THEME CONTROLLER ---
@@ -160,7 +128,7 @@
     }
   }
 
-  // --- 3. REUSABLE MODAL PREVIEW & COMPLETION MODAL ---
+  // --- 3. APP/FILE PREVIEW MODAL ---
   let lastFocusedEl = null;
 
   function getFocusable(container) {
@@ -223,35 +191,11 @@
     restoreFocus();
   }
 
-  function openCompletionModal() {
-    const modal = document.getElementById('completion-modal');
-    if (modal) {
-      lastFocusedEl = document.activeElement;
-      modal.style.display = 'flex';
-      focusDialog(modal);
-      const dismissBtn = document.getElementById('completion-modal-dismiss-btn');
-      if (dismissBtn) dismissBtn.onclick = closeCompletionModal;
-      const closeBtn = document.getElementById('completion-modal-close-btn');
-      if (closeBtn) closeBtn.onclick = closeCompletionModal;
-    }
-  }
-
-  function closeCompletionModal() {
-    const modal = document.getElementById('completion-modal');
-    if (modal) modal.style.display = 'none';
-    restoreFocus();
-  }
-
   function initMockModal() {
     const closeBtn = document.getElementById('mock-modal-close-btn');
     const modal = document.getElementById('mock-preview-modal');
-    const compModal = document.getElementById('completion-modal');
-    const compCloseBtn = document.getElementById('completion-modal-close-btn');
-    const compDismissBtn = document.getElementById('completion-modal-dismiss-btn');
 
     if (closeBtn) closeBtn.onclick = closeMockModal;
-    if (compCloseBtn) compCloseBtn.onclick = closeCompletionModal;
-    if (compDismissBtn) compDismissBtn.onclick = closeCompletionModal;
 
     if (modal) {
       modal.onclick = function (e) {
@@ -259,27 +203,16 @@
       };
     }
 
-    if (compModal) {
-      compModal.onclick = function (e) {
-        if (e.target === compModal) closeCompletionModal();
-      };
-    }
-
-    // Trap Tab focus within whichever dialog is open
+    // Trap Tab focus within the open dialog
     if (modal) {
       const dialog = modal.querySelector('.mock-modal-dialog');
       if (dialog) dialog.onkeydown = function (e) { trapTab(e, dialog); };
     }
-    if (compModal) {
-      const compDialog = compModal.querySelector('.mock-modal-dialog');
-      if (compDialog) compDialog.onkeydown = function (e) { trapTab(e, compDialog); };
-    }
 
-    // Escape key closes modals
+    // Escape key closes the preview modal
     window.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
         closeMockModal();
-        closeCompletionModal();
       }
     });
   }
@@ -326,157 +259,7 @@
     });
   }
 
-  // --- 5. WINDOWS TO MINT TRANSLATOR ---
-  const TRANSLATIONS = [
-    {
-      win: '.exe installers (from random websites)',
-      mint: 'Software Manager & Flatpak',
-      desc: 'In Linux Mint, you install apps from the curated Software Manager with 1-click. No sketchy download sites, adware, or malware installers needed!',
-      tags: ['exe', 'installer', 'install', 'download', 'program', 'setup']
-    },
-    {
-      win: 'C:\\ Drive and Program Files',
-      mint: 'Home Directory (/home/username/)',
-      desc: 'No drive letters like C: or D:. All personal files live safely in your Home folder. Applications are managed cleanly by the operating system.',
-      tags: ['c drive', 'c:', 'disk', 'program files', 'hard drive', 'storage', 'd:']
-    },
-    {
-      win: 'Windows Start Menu',
-      mint: 'Whisker Menu',
-      desc: 'The bottom-left button opens the Whisker Menu. Instant search, customizable categories, and favorite pins just like you are used to.',
-      tags: ['start menu', 'start', 'whisker', 'search', 'taskbar', 'windows button']
-    },
-    {
-      win: 'Control Panel / Windows Settings',
-      mint: 'XFCE Settings Manager',
-      desc: 'A unified single window containing all display, audio, mouse, keyboard, and appearance settings. Simple with zero confusing nested menus.',
-      tags: ['control panel', 'settings', 'config', 'options', 'personalize', 'preferences']
-    },
-    {
-      win: 'Windows Update (Forced Reboots)',
-      mint: 'Update Manager (Shield Icon)',
-      desc: 'Mint never forces a restart during your work. Updates only apply when you click, and you can keep working uninterrupted.',
-      tags: ['windows update', 'update', 'reboot', 'restart', 'patch']
-    },
-    {
-      win: 'Task Manager (Ctrl+Shift+Esc)',
-      mint: 'Task Manager / System Monitor',
-      desc: 'Shows live CPU, RAM memory usage, and running processes with 1-click process termination. Searchable and lightweight.',
-      tags: ['task manager', 'taskmgr', 'processes', 'cpu', 'ram', 'memory', 'kill']
-    },
-    {
-      win: 'Microsoft Office (Word, Excel, PPT)',
-      mint: 'LibreOffice Suite (Writer, Calc, Impress)',
-      desc: 'Pre-installed for free in Linux Mint. Completely compatible with .docx, .xlsx, and .pptx files without recurring subscriptions or serial keys.',
-      tags: ['word', 'excel', 'powerpoint', 'office', 'libreoffice', 'doc', 'docs', 'sheet']
-    },
-    {
-      win: 'Windows File Explorer',
-      mint: 'Thunar File Manager',
-      desc: 'The fast, lightweight XFCE file manager. Supports tabbed browsing, custom folder colors, and instant USB flash drive detection.',
-      tags: ['explorer', 'files', 'folders', 'my computer', 'thunar', 'directory']
-    },
-    {
-      win: 'Adobe Photoshop',
-      mint: 'GIMP or Photopea',
-      desc: 'GIMP provides professional image manipulation and layer editing, while Photopea runs in any browser with familiar Photoshop shortcuts.',
-      tags: ['photoshop', 'photo', 'edit image', 'gimp', 'graphics', 'adobe']
-    },
-    {
-      win: 'Notepad',
-      mint: 'Xed Text Editor / Mousepad',
-      desc: 'Clean, tabbed plain-text editor with syntax highlighting, search & replace, and dark mode support.',
-      tags: ['notepad', 'text editor', 'txt', 'mousepad', 'xed']
-    },
-    {
-      win: 'Command Prompt (CMD) / PowerShell',
-      mint: 'XFCE Terminal',
-      desc: 'The command line interface. Optional for daily driving, but powerful and friendly once you see how predictable it is.',
-      tags: ['cmd', 'powershell', 'terminal', 'command prompt', 'cli', 'bash']
-    },
-    {
-      win: 'System Restore / Antivirus',
-      mint: 'Timeshift Snapshots',
-      desc: 'Timeshift automatically takes system snapshots. If any tweak goes wrong, roll back your system in 1-click while your personal documents stay untouched.',
-      tags: ['antivirus', 'system restore', 'backup', 'timeshift', 'virus', 'security']
-    },
-    {
-      win: 'PC Gaming & Steam',
-      mint: 'Steam + Valve Proton',
-      desc: 'Install Steam directly from the Software Manager. Valve Proton enables thousands of Windows games to run automatically with 1-click.',
-      tags: ['gaming', 'games', 'steam', 'play', 'proton']
-    }
-  ];
-
-  function initTranslator() {
-    const input = document.getElementById('translator-search');
-    const resultBox = document.getElementById('translator-result');
-    const quickTagContainer = document.getElementById('quick-tags');
-
-    if (!input || !resultBox || !quickTagContainer) return;
-
-    function renderResult(item) {
-      resultBox.innerHTML =
-        '<div class="trans-col">' +
-        '  <h4>In Windows</h4>' +
-        '  <div class="trans-item">' + item.win + '</div>' +
-        '  <div class="trans-desc">What you are accustomed to on Windows machines.</div>' +
-        '</div>' +
-        '<div class="trans-col">' +
-        '  <h4>In Linux Mint XFCE</h4>' +
-        '  <div class="trans-item" style="color: var(--mint-primary);">' + item.mint + '</div>' +
-        '  <div class="trans-desc">' + item.desc + '</div>' +
-        '</div>';
-    }
-
-    function search(query) {
-      const q = query.trim().toLowerCase();
-      if (!q) {
-        renderResult(TRANSLATIONS[0]);
-        return;
-      }
-
-      const match = TRANSLATIONS.find(function (t) {
-        return (
-          t.win.toLowerCase().indexOf(q) !== -1 ||
-          t.mint.toLowerCase().indexOf(q) !== -1 ||
-          t.tags.some(function (tag) { return tag.indexOf(q) !== -1; })
-        );
-      });
-
-      if (match) {
-        renderResult(match);
-      } else {
-        resultBox.innerHTML =
-          '<div style="grid-column: 1 / -1; text-align: center; padding: 1rem;">' +
-          '  <div style="font-weight: 600; margin-bottom: 0.35rem;">No direct match found for "' + query + '"</div>' +
-          '  <div class="trans-desc">Try clicking one of the popular suggestions below like "exe", "Start Menu", "Office", or "C: Drive"!</div>' +
-          '</div>';
-      }
-    }
-
-    input.oninput = function (e) {
-      search(e.target.value);
-    };
-
-    const popularTags = ['exe', 'Start Menu', 'C: Drive', 'Control Panel', 'Office', 'Task Manager', 'Windows Update', 'Antivirus', 'Steam'];
-    quickTagContainer.innerHTML = popularTags.map(function (tag) {
-      return '<button type="button" class="quick-tag-btn" data-query="' + tag + '">' + tag + '</button>';
-    }).join('');
-
-    quickTagContainer.onclick = function (e) {
-      const btn = e.target.closest('.quick-tag-btn');
-      if (btn) {
-        const q = btn.getAttribute('data-query');
-        input.value = q;
-        search(q);
-      }
-    };
-
-    renderResult(TRANSLATIONS[0]);
-  }
-
-  // --- 6. MODULE 1: TIMESHIFT & SAFETY NET ---
+  // --- 5. TASTE 1: TIMESHIFT SAFETY NET ---
   function initTimeshiftSimulator() {
     const btnSnapshot = document.getElementById('btn-take-snapshot');
     const btnBreak = document.getElementById('btn-simulate-break');
@@ -501,7 +284,6 @@
         statusBox.innerHTML = '🛡️ <strong>Safety Snapshot Saved:</strong> Clean snapshot captured. Your system files and settings are safely preserved!';
         btnSnapshot.disabled = false;
         btnSnapshot.innerHTML = '📸 Create Snapshot';
-        markProgress('task-snapshot');
       }, 700);
     };
 
@@ -527,12 +309,11 @@
         statusBox.innerHTML = '✨ <strong>System Restored in 5 Seconds:</strong> Everything is back to normal! Notice how Timeshift gives you complete peace of mind to explore.';
         btnRestore.disabled = false;
         btnRestore.innerHTML = '↺ Restore Snapshot';
-        markProgress('task-snapshot');
       }, 700);
     };
   }
 
-  // --- 7. MODULE 2: WHISKER MENU & PANEL LAUNCHERS ---
+  // --- 6. TASTE 2: WHISKER MENU & PANEL LAUNCHERS ---
   const WHISKER_APPS = [
     { name: 'Firefox Web Browser', cat: 'internet', icon: '🌐', desc: 'Browse the World Wide Web safely' },
     { name: 'Thunderbird Mail', cat: 'internet', icon: '✉️', desc: 'Send and receive emails and manage calendar' },
@@ -636,7 +417,6 @@
             '</div>'
           );
 
-          markProgress('task-whisker');
         }
       };
     }
@@ -812,7 +592,7 @@
     renderApps('all');
   }
 
-  // --- 8. MODULE 3: SOFTWARE MANAGER ---
+  // --- 7. TASTE 3: SOFTWARE MANAGER ---
   const SOFTWARE_CATALOG = [
     {
       id: 'vlc',
@@ -993,14 +773,12 @@
               clearInterval(timer);
               appState.installedApps.add(appName);
               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
-              markProgress('task-software');
               renderSoftware();
             }
           }, 90);
         } else {
           appState.installedApps.add(appName);
           safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
-          markProgress('task-software');
           renderSoftware();
         }
         return;
@@ -1070,7 +848,7 @@
     renderSoftware();
   }
 
-  // --- 9. MODULE 4: THUNAR FILE EXPLORER ---
+  // --- 8. TASTE 4: THUNAR FILE EXPLORER ---
   const THUNAR_DIRS = {
     '/home/newcomer': {
       label: 'Home',
@@ -1241,7 +1019,6 @@
         } else {
           renderDir('/home/newcomer');
         }
-        markProgress('task-thunar');
       } else {
         if (fileInfoToast) {
           fileInfoToast.style.display = 'flex';
@@ -1272,7 +1049,6 @@
           '</div>'
         );
 
-        markProgress('task-thunar');
       }
     };
 
@@ -1283,7 +1059,6 @@
           const path = item.getAttribute('data-path');
           if (path && THUNAR_DIRS[path]) {
             renderDir(path);
-            markProgress('task-thunar');
           }
         }
       };
@@ -1292,7 +1067,7 @@
     renderDir('/home/newcomer');
   }
 
-  // --- 10. MODULE 5: FEAR-FREE TERMINAL ---
+  // --- 9. TASTE 5: FEAR-FREE TERMINAL ---
   const COMMANDS = {
     'neofetch': {
       output: [
@@ -1457,7 +1232,6 @@
 
       screen.appendChild(outBlock);
       screen.scrollTop = screen.scrollHeight;
-      markProgress('task-terminal');
     }
 
     function submitInput() {
@@ -1488,495 +1262,18 @@
     }
   }
 
-  // --- 11. INTERACTIVE QUIZZES ---
-  const QUIZ_DATA = {
-    'quiz-1': {
-      answer: 'b',
-      feedback: 'Correct! The Update Manager safely handles updates in the background. Mint will never abruptly shut down or force a reboot while you are working.'
-    },
-    'quiz-2': {
-      answer: 'c',
-      feedback: 'Exactly! Just click the Mint button in the bottom-left corner or tap the Windows/Super key on your keyboard and start typing what you need.'
-    },
-    'quiz-3': {
-      answer: 'a',
-      feedback: 'Spot on! In Linux Mint, you simply open the Software Manager and click Install. No suspicious third-party download websites required.'
-    },
-    'quiz-4': {
-      answer: 'b',
-      feedback: 'Correct! Your Home directory (/home/username) houses all your personal files (Documents, Downloads, Pictures, Videos). There are no drive letters like C: or D:.'
-    },
-    'quiz-5': {
-      answer: 'c',
-      feedback: 'You nailed it! You can do 100% of your daily computing in Linux Mint XFCE via the visual interface without ever opening the terminal.'
-    }
-  };
 
-  function initQuizzes() {
-    document.querySelectorAll('.quiz-box').forEach(function (box) {
-      const quizId = box.getAttribute('data-quiz-id');
-      const options = box.querySelectorAll('.quiz-option-btn');
-      const feedback = box.querySelector('.quiz-feedback');
-      const resetBtn = box.querySelector('.quiz-reset-btn');
-      const qMeta = QUIZ_DATA[quizId];
-
-      if (!qMeta) return;
-
-      function resetQuiz() {
-        options.forEach(function (o) {
-          o.disabled = false;
-          o.classList.remove('correct', 'incorrect');
-        });
-        if (feedback) {
-          feedback.style.display = 'none';
-          feedback.innerHTML = '';
-        }
-        if (resetBtn) resetBtn.style.display = 'none';
-        delete appState.progress[quizId];
-        safeStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(appState.progress));
-
-        let quizData = {};
-        try {
-          const rawQ = safeStorage.getItem(STORAGE_KEY_QUIZ);
-          if (rawQ) quizData = JSON.parse(rawQ);
-        } catch (e) {}
-        delete quizData[quizId];
-        safeStorage.setItem(STORAGE_KEY_QUIZ, JSON.stringify(quizData));
-
-        const checklistArr = Object.keys(appState.progress).filter(function (k) {
-          return appState.progress[k] && TRACKED_TASKS.indexOf(k) !== -1;
-        });
-        safeStorage.setItem(STORAGE_KEY_CHECKLIST, JSON.stringify(checklistArr));
-
-        updateProgressUI(false);
-      }
-
-      // Restore answered state if previously saved
-      if (appState.progress[quizId]) {
-        const correctBtn = box.querySelector('.quiz-option-btn[data-val="' + qMeta.answer + '"]');
-        if (correctBtn) {
-          options.forEach(function (o) { o.disabled = true; });
-          correctBtn.classList.add('correct');
-          if (feedback) {
-            feedback.style.display = 'block';
-            feedback.className = 'quiz-feedback status-alert success';
-            feedback.innerHTML = '🎉 ' + qMeta.feedback;
-          }
-          if (resetBtn) resetBtn.style.display = 'inline-block';
-        }
-      }
-
-      options.forEach(function (opt) {
-        opt.onclick = function (e) {
-          e.preventDefault();
-          const chosen = opt.getAttribute('data-val');
-          options.forEach(function (o) {
-            o.disabled = true;
-            o.classList.remove('correct', 'incorrect');
-          });
-
-          if (chosen === qMeta.answer) {
-            opt.classList.add('correct');
-            if (feedback) {
-              feedback.style.display = 'block';
-              feedback.className = 'quiz-feedback status-alert success';
-              feedback.innerHTML = '🎉 ' + qMeta.feedback;
-            }
-            markProgress(quizId);
-          } else {
-            opt.classList.add('incorrect');
-            const correctBtn = box.querySelector('.quiz-option-btn[data-val="' + qMeta.answer + '"]');
-            if (correctBtn) correctBtn.classList.add('correct');
-            if (feedback) {
-              feedback.style.display = 'block';
-              feedback.className = 'quiz-feedback status-alert warning';
-              feedback.innerHTML = '💡 Not quite. ' + qMeta.feedback;
-            }
-          }
-
-          if (resetBtn) resetBtn.style.display = 'inline-block';
-        };
-      });
-
-      if (resetBtn) {
-        resetBtn.onclick = function (e) {
-          e.preventDefault();
-          resetQuiz();
-        };
-      }
-    });
-  }
-
-  // --- 12. PROGRESS TRACKER & READINESS CHECKLIST ---
-  const TRACKED_TASKS = [
-    'task-snapshot',
-    'task-whisker',
-    'task-software',
-    'task-thunar',
-    'task-terminal',
-    'quiz-1',
-    'quiz-2',
-    'quiz-3',
-    'quiz-4',
-    'quiz-5'
-  ];
-
-  // --- 12.5 LEVEL PROGRESSION SUBSYSTEM ---
-  // Strict sequential path: a level unlocks only when the previous level's
-  // simulator task AND quiz are both complete. Unlock state is always DERIVED
-  // from appState.progress (never stored separately).
-  const LEVELS = [
-    { level: 1, moduleId: 'module-1', label: 'First Steps & Safety Net', tasks: ['task-snapshot', 'quiz-1'] },
-    { level: 2, moduleId: 'module-2', label: 'Whisker Menu & Navigation', tasks: ['task-whisker', 'quiz-2'] },
-    { level: 3, moduleId: 'module-3', label: 'Installing Apps Safely', tasks: ['task-software', 'quiz-3'] },
-    { level: 4, moduleId: 'module-4', label: 'Thunar & Your Files', tasks: ['task-thunar', 'quiz-4'] },
-    { level: 5, moduleId: 'module-5', label: 'Demystifying the Terminal', tasks: ['task-terminal', 'quiz-5'] }
-  ];
-  const TOTAL_LEVELS = LEVELS.length;
-  const LEVELS_BY_NUM = {};
-  LEVELS.forEach(function (l) { LEVELS_BY_NUM[l.level] = l; });
-  let lastCompletedLevels = -1;
-
-  function isLevelComplete(levelDef) {
-    return levelDef.tasks.every(function (t) { return !!appState.progress[t]; });
-  }
-
-  function getCompletedLevelCount() {
-    return LEVELS.filter(isLevelComplete).length;
-  }
-
-  function getCurrentLevelNum() {
-    return Math.min(TOTAL_LEVELS, getCompletedLevelCount() + 1);
-  }
-
-  function isLevelUnlocked(levelNum) {
-    return getCompletedLevelCount() >= levelNum - 1;
-  }
-
-  function flashAndScroll(el) {
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth' });
-    el.style.outline = '2px solid var(--mint-primary)';
-    setTimeout(function () {
-      el.style.outline = 'none';
-    }, 1500);
-  }
-
-  function showLevelToast(message) {
-    const toast = document.getElementById('level-toast');
-    if (!toast) return;
-    toast.innerHTML = message;
-    toast.style.display = 'flex';
-    clearTimeout(showLevelToast._timer);
-    showLevelToast._timer = setTimeout(function () {
-      toast.style.display = 'none';
-    }, 3500);
-  }
-
-  function applyLevelLocks() {
-    const completedCount = getCompletedLevelCount();
-    document.querySelectorAll('.module-card[data-level]').forEach(function (card) {
-      const levelNum = parseInt(card.getAttribute('data-level'), 10);
-      const unlocked = completedCount >= levelNum - 1;
-      const overlay = card.querySelector('.level-lock-overlay');
-
-      if (unlocked) {
-        card.classList.remove('is-locked');
-        if (overlay) overlay.classList.remove('show');
-      } else {
-        card.classList.add('is-locked');
-        if (overlay) {
-          overlay.classList.add('show');
-          const reqLevel = levelNum - 1;
-          const descEl = overlay.querySelector('.level-lock-desc');
-          if (descEl) {
-            descEl.textContent = 'Finish Level ' + reqLevel + ' (simulator + quiz) to unlock this walkthrough.';
-          }
-          const gotoBtn = overlay.querySelector('.level-lock-goto-btn');
-          if (gotoBtn) {
-            if (reqLevel >= 1) {
-              gotoBtn.style.display = 'inline-flex';
-              gotoBtn.textContent = 'Go to Level ' + reqLevel;
-            } else {
-              gotoBtn.style.display = 'none';
-            }
-          }
-        }
-      }
-    });
-  }
-
-  function renderLevelPath() {
-    const track = document.getElementById('level-path');
-    if (!track) return;
-    const completedCount = getCompletedLevelCount();
-    const parts = [];
-
-    LEVELS.forEach(function (levelDef, idx) {
-      const num = levelDef.level;
-      const isDone = completedCount > idx;
-      const isCurrent = completedCount === idx;
-      const isLocked = completedCount < idx;
-
-      let stateClass = 'level-node';
-      if (isDone) stateClass += ' done';
-      else if (isCurrent) stateClass += ' current';
-      else stateClass += ' locked';
-
-      parts.push(
-        '<button type="button" class="' + stateClass + '" data-level="' + num + '" title="' +
-        (isDone ? 'Level ' + num + ' complete — ' + levelDef.label : isCurrent ? 'Level ' + num + ' — ' + levelDef.label : 'Locked until Level ' + num + ' is completed') + '">' +
-        '  <span class="level-node-icon">' + (isDone ? '✓' : (isLocked ? '🔒' : num)) + '</span>' +
-        '  <span class="level-node-label">Level ' + num + '</span>' +
-        '  <span class="level-node-sub">' + levelDef.label + '</span>' +
-        '</button>'
-      );
-
-      if (idx < LEVELS.length - 1) {
-        parts.push('<div class="level-path-conn' + (completedCount > idx ? ' done' : '') + '"></div>');
-      }
-    });
-
-    const gradDone = completedCount >= TOTAL_LEVELS;
-    const gradState = gradDone ? 'done' : (completedCount === TOTAL_LEVELS - 1 ? 'current' : 'locked');
-    parts.push(
-      '<button type="button" class="level-node graduation-node ' + gradState + '" title="Graduation">' +
-      '  <span class="level-node-icon">' + (gradDone ? '✓' : '🎓') + '</span>' +
-      '  <span class="level-node-label">Graduate</span>' +
-      '  <span class="level-node-sub">Certificate</span>' +
-      '</button>'
-    );
-
-    track.innerHTML = parts.join('');
-  }
-
-  function initLevelSystem() {
-    // Locked module overlay -> jump to the required previous level
-    document.querySelectorAll('.module-card[data-level]').forEach(function (card) {
-      const overlay = card.querySelector('.level-lock-overlay');
-      if (!overlay) return;
-      overlay.onclick = function () {
-        const levelNum = parseInt(card.getAttribute('data-level'), 10);
-        const prevModule = document.getElementById('module-' + (levelNum - 1));
-        if (prevModule) flashAndScroll(prevModule);
-      };
-      const gotoBtn = overlay.querySelector('.level-lock-goto-btn');
-      if (gotoBtn) {
-        gotoBtn.onclick = function (e) {
-          e.stopPropagation();
-          const levelNum = parseInt(card.getAttribute('data-level'), 10);
-          const prevModule = document.getElementById('module-' + (levelNum - 1));
-          if (prevModule) flashAndScroll(prevModule);
-        };
-      }
-    });
-
-    // Learning path node clicks
-    const track = document.getElementById('level-path');
-    if (track) {
-      track.onclick = function (e) {
-        const node = e.target.closest('.level-node');
-        if (!node) return;
-        const levelNum = node.getAttribute('data-level');
-        const completedCount = getCompletedLevelCount();
-
-        if (levelNum) {
-          const num = parseInt(levelNum, 10);
-          if (completedCount < num - 1) {
-            const prevModule = document.getElementById('module-' + (num - 1));
-            if (prevModule) flashAndScroll(prevModule);
-          } else {
-            const targetModule = document.getElementById('module-' + num);
-            if (targetModule) flashAndScroll(targetModule);
-          }
-        } else {
-          // Graduation node
-          if (completedCount >= TOTAL_LEVELS) {
-            const certSection = document.getElementById('certificate-section');
-            if (certSection) flashAndScroll(certSection);
-          } else {
-            const currentNum = Math.min(TOTAL_LEVELS, completedCount + 1);
-            const targetModule = document.getElementById('module-' + currentNum);
-            if (targetModule) flashAndScroll(targetModule);
-          }
-        }
-      };
-    }
-  }
-
-  function markProgress(taskId) {
-    appState.progress[taskId] = true;
-    safeStorage.setItem(STORAGE_KEY_PROGRESS, JSON.stringify(appState.progress));
-
-    // Also persist under mint_quiz_progress and mint_checklist_progress
-    if (taskId.indexOf('quiz-') === 0) {
-      let quizData = {};
-      try {
-        const rawQ = safeStorage.getItem(STORAGE_KEY_QUIZ);
-        if (rawQ) quizData = JSON.parse(rawQ);
-      } catch (e) {}
-      quizData[taskId] = true;
-      safeStorage.setItem(STORAGE_KEY_QUIZ, JSON.stringify(quizData));
-    }
-
-    const checklistArr = Object.keys(appState.progress).filter(function (k) {
-      return appState.progress[k] && TRACKED_TASKS.indexOf(k) !== -1;
-    });
-    safeStorage.setItem(STORAGE_KEY_CHECKLIST, JSON.stringify(checklistArr));
-
-    updateProgressUI(true);
-  }
-
-  function updateProgressUI(fromUserAction) {
-    const completedCount = Object.keys(appState.progress).filter(function (k) {
-      return TRACKED_TASKS.indexOf(k) !== -1 && appState.progress[k];
-    }).length;
-    const total = TRACKED_TASKS.length;
-    const pct = Math.round((completedCount / total) * 100);
-
-    const progressFill = document.getElementById('global-progress-fill');
-    const progressText = document.getElementById('global-progress-text');
-    const certPercent = document.getElementById('cert-percent-text');
-    const levelText = document.getElementById('global-level-text');
-
-    if (progressFill) progressFill.style.width = pct + '%';
-    if (progressText) progressText.textContent = pct + '% Mastered';
-    if (certPercent) certPercent.textContent = completedCount + ' of ' + total + ' Milestones Completed (' + pct + '%)';
-    if (levelText) {
-      if (getCompletedLevelCount() >= TOTAL_LEVELS) {
-        levelText.textContent = '🎓 Graduated';
-      } else {
-        levelText.textContent = 'Level ' + getCurrentLevelNum() + ' of ' + TOTAL_LEVELS;
-      }
-    }
-
-    // Update readiness checklist items
-    TRACKED_TASKS.forEach(function (task) {
-      const el = document.getElementById('check-' + task);
-      if (el) {
-        const icon = el.querySelector('.check-icon');
-        if (appState.progress[task]) {
-          el.className = 'check-item done';
-          if (icon) icon.textContent = '✓';
-        } else {
-          el.className = 'check-item';
-          if (icon) icon.textContent = '○';
-        }
-      }
-    });
-
-    // Update module status indicators (level-aware)
-    document.querySelectorAll('.module-card[data-level]').forEach(function (card) {
-      const levelNum = parseInt(card.getAttribute('data-level'), 10);
-      const statusEl = document.getElementById('mod-status-' + levelNum);
-      if (!statusEl) return;
-      const levelDef = LEVELS_BY_NUM[levelNum];
-      if (!levelDef) return;
-      const allDone = levelDef.tasks.every(function (t) { return !!appState.progress[t]; });
-
-      if (!isLevelUnlocked(levelNum)) {
-        statusEl.className = 'module-status locked';
-        statusEl.innerHTML = '🔒 Locked';
-      } else if (allDone) {
-        statusEl.className = 'module-status done';
-        statusEl.innerHTML = '✓ Completed';
-      } else {
-        statusEl.className = 'module-status';
-        statusEl.innerHTML = '● In Progress';
-      }
-    });
-
-    // Apply strict level locks + refresh the learning path
-    applyLevelLocks();
-    renderLevelPath();
-
-    // Level-up celebration feedback
-    const levelCompletedCount = getCompletedLevelCount();
-    if (fromUserAction && levelCompletedCount > lastCompletedLevels && lastCompletedLevels >= 0) {
-      if (levelCompletedCount >= TOTAL_LEVELS) {
-        showLevelToast('🎓 Level ' + TOTAL_LEVELS + ' Complete! You have graduated from the Newcomer Playground.');
-      } else if (levelCompletedCount > 0) {
-        const nextDef = LEVELS[levelCompletedCount];
-        showLevelToast('⭐ Level ' + levelCompletedCount + ' Complete — Level ' + nextDef.level + ' Unlocked!');
-      }
-    }
-    lastCompletedLevels = levelCompletedCount;
-
-    // Trigger completion celebration modal if 100% achieved by user action
-    if (pct === 100 && fromUserAction) {
-      openCompletionModal();
-    }
-  }
-
-  function initChecklistClicks() {
-    function jumpToTarget(item) {
-      const targetId = item.getAttribute('data-target');
-      if (!targetId) return;
-      const targetEl = document.getElementById(targetId);
-      if (!targetEl) return;
-      targetEl.scrollIntoView({ behavior: 'smooth' });
-      targetEl.style.outline = '2px solid var(--mint-primary)';
-      setTimeout(function () {
-        targetEl.style.outline = 'none';
-      }, 1500);
-    }
-
-    document.querySelectorAll('.readiness-checklist .check-item').forEach(function (item) {
-      item.onclick = function () {
-        jumpToTarget(item);
-      };
-      item.onkeydown = function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          jumpToTarget(item);
-        }
-      };
-    });
-
-    const resetProgressBtn = document.getElementById('btn-reset-progress');
-    if (resetProgressBtn) {
-      resetProgressBtn.onclick = function () {
-        appState.progress = {};
-        safeStorage.setItem(STORAGE_KEY_PROGRESS, '{}');
-        safeStorage.setItem(STORAGE_KEY_QUIZ, '{}');
-        safeStorage.setItem(STORAGE_KEY_CHECKLIST, '[]');
-        updateProgressUI(false);
-        document.querySelectorAll('.quiz-box').forEach(function (box) {
-          const resetBtn = box.querySelector('.quiz-reset-btn');
-          if (resetBtn) {
-            const options = box.querySelectorAll('.quiz-option-btn');
-            const feedback = box.querySelector('.quiz-feedback');
-            options.forEach(function (o) {
-              o.disabled = false;
-              o.classList.remove('correct', 'incorrect');
-            });
-            if (feedback) {
-              feedback.style.display = 'none';
-              feedback.innerHTML = '';
-            }
-            resetBtn.style.display = 'none';
-          }
-        });
-      };
-    }
-  }
-
-  // --- 13. BULLETPROOF BOOTSTRAP ---
+  // --- 10. BULLETPROOF BOOTSTRAP ---
   function bootstrap() {
     try {
       initTheme();
       initMockModal();
       initWindowControls();
-      initTranslator();
       initTimeshiftSimulator();
       initWhiskerSimulator();
       initSoftwareSimulator();
       initThunarSimulator();
       initTerminalSimulator();
-      initQuizzes();
-      initChecklistClicks();
-      initLevelSystem();
-      updateProgressUI(false);
     } catch (err) {
       if (typeof console !== 'undefined' && console.error) {
         console.error('Error during Mint Guide initialization:', err);
