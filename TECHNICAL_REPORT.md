@@ -1,6 +1,6 @@
 # Technical Architecture Report: Linux Mint XFCE Guide
 
-> **Document Version**: 2.0.0  
+> **Document Version**: 3.0.0  
 > **Target Architecture**: Pure Client-Side Vanilla Web Application  
 > **Source Files**: `index.html`, `css/style.css`, `js/app.js`  
 > **Bundle Dependency Count**: 0 external packages, 0 build steps, 0 CDN links  
@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary & Architectural Philosophy
 
-The **Linux Mint XFCE Guide** is an educational single-page application (SPA) created to eliminate onboarding friction for computer users transitioning from Microsoft Windows or macOS to Linux Mint (XFCE Edition). 
+The **Linux Mint XFCE Guide** is a tasting menu for first-timers: five clickable stations covering the real Mint workflow, each ending in a one-line takeaway, followed by a single decision section. There are no lessons, quizzes, locked levels, or progress tracking — a visitor who has never tried Linux tastes it here, then decides. 
 
 ### 1.1 Fundamental Architectural Principles
 1. **Zero-Dependency Guarantee**: The application operates without any build toolchain (no Webpack, Vite, or Babel) and without external runtime dependencies (no React, Vue, jQuery, Tailwind, or Bootstrap).
@@ -240,39 +240,10 @@ $$\text{Type Selection} \longrightarrow \text{Target Drive} \longrightarrow \tex
   - Auto-scroll lock keeps the active command prompt visible at the bottom of the viewport.
   - Built-in `help` command catalogs all supported sandbox commands.
 
-### 5.6 Knowledge Checks & Readiness Verification
-- **Quiz Engine**:
-  - Validates radio option inputs against pre-defined answer keys.
-  - Visual response classes: `.quiz-correct` (emerald highlight) and `.quiz-incorrect` (amber highlight).
-  - Dynamic retry mechanism resets radio states and clears feedback alerts without triggering a DOM re-render of the entire container.
-- **Readiness Checklist**:
-  - Reactive listener watches all 6 self-assessment checkboxes.
-  - Dynamic percentage gauge:
-    $$\text{Percentage} = \left(\frac{\sum \text{Checked Items}}{6}\right) \times 100\%$$
-  - Completion modal activates automatically upon reaching 100% completion.
-
-### 5.7 Level Progression State Machine (Strict Sequential)
-The site is converted from a free-roam sandbox into a **strictly gated learning path**. Progression is computed — never stored — from the existing milestone flags in `appState.progress`.
-
-- **Data Model**: `LEVELS` in `js/app.js` defines exactly 5 levels, each mapped to one module and two completion gates:
-  ```javascript
-  const LEVELS = [
-    { level: 1, moduleId: 'module-1', label: 'First Steps & Safety Net', tasks: ['task-snapshot', 'quiz-1'] },
-    { level: 2, moduleId: 'module-2', label: 'Whisker Menu & Navigation', tasks: ['task-whisker', 'quiz-2'] },
-    { level: 3, moduleId: 'module-3', label: 'Installing Apps Safely', tasks: ['task-software', 'quiz-3'] },
-    { level: 4, moduleId: 'module-4', label: 'Thunar & Your Files', tasks: ['task-thunar', 'quiz-4'] },
-    { level: 5, moduleId: 'module-5', label: 'Demystifying the Terminal', tasks: ['task-terminal', 'quiz-5'] }
-  ];
-  ```
-- **Unlock Predicate** (purely derived):
-  $$\text{Unlocked}(n) \iff \text{CompletedLevelCount}(n-1) \ge n-1$$
-  where $\text{CompletedLevelCount} = |\{l \in LEVELS : \forall t \in l.tasks, \; progress[t]\}|$.
-- **Rendering Pipeline** (driven by `updateProgressUI`):
-  1. `applyLevelLocks()` toggles `.is-locked` on module cards and shows the `🔒` overlay; overlay clicks smooth-scroll to the required previous level.
-  2. `renderLevelPath()` rebuilds the 6-node Learning Path strip (5 levels + Graduation) with `done` / `current` / `locked` states.
-  3. Nav progress widget exposes the current level badge (`Level N of 5` or `🎓 Graduated`).
-  4. Crossing a level boundary fires a celebratory toast; graduating fires the completion modal.
-- **State Stability**: Because unlock state is re-derived on every `updateProgressUI` call, page reloads, quiz "Try Again" resets, and the "Reset Progress Checklist" button all restore correct locking instantly with zero extra persistence keys.
+### 5.6 Taste Stations & Decide Section
+- **Station Structure**: Each of the five `article.module-card` blocks (`#module-1` … `#module-5`) contains one context paragraph (`.module-intro`), the interactive demo, and one takeaway (`.status-alert.success.taste-takeaway`). All stations are always interactive — no gating, no locks, no progress state.
+- **Decide Section**: A single closing card (`section#decide`) with download, installation-guide, and forum links. It is the only place the page asks the visitor to act in the real world.
+- **Removed Systems**: Knowledge-check quizzes, the readiness checklist/certificate, the `LEVELS` progression machine with lock overlays, the learning-path strip, level toasts, and the graduation modal were deleted from all three source files. Their identifiers (`QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `markProgress`, `updateProgressUI`, `initTranslator`) must not reappear; the verification matrix greps for them.
 
 ---
 
@@ -313,14 +284,13 @@ Mock desktop window buttons (`minimize`, `maximize`, `close`) provide tactile de
 Any future modifications must pass this manual verification checklist:
 - [x] Launch `index.html` via `file://` in Chrome, Firefox, and Safari.
 - [x] Verify theme toggle flips between dark and light modes cleanly with no styling artifacts.
-- [x] Complete the Timeshift backup wizard from step 1 to step 4.
+- [x] Take a Timeshift snapshot, simulate a break, and restore it.
 - [x] Type queries in the Whisker Menu search bar and test category filtering.
 - [x] Install and uninstall an application in the Software Manager.
 - [x] Audit the entire application to verify zero occurrences of music, songs, or music platforms project-wide.
-- [x] Execute `pwd`, `ls`, `dir`, `cls`, and `neofetch` in the Terminal Simulator.
-- [x] Answer all 5 quizzes correctly, test the retry button on deliberate mistakes, and complete the 6-point readiness checklist.
-- [x] Verify strict level gating: Level 1 unlocked at load, Levels 2–5 locked with non-interactive overlays.
-- [x] Walk Levels 1→5 sequentially; confirm level-up toasts, downstream unlocks, and final graduation modal.
-- [x] Press "Try Again" on a finished quiz and confirm downstream levels re-lock; press "Reset Progress" and confirm only Level 1 remains unlocked.
+- [x] Execute `pwd`, `ls`, `dir`, `cls`, and `neofetch` in the Terminal taste station.
+- [x] Confirm all five stations are interactive on load with no locks, quizzes, or gating.
+- [x] Confirm nav links and the hero CTA reach `#the-deal`, `#taste`, and `#decide`.
+- [x] Grep for `quiz-`, `check-`, `level-`, `completion-modal`, `updateProgressUI` and confirm zero hits in source.
 - [x] Confirm zero console warnings or exceptions.
 

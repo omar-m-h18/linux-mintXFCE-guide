@@ -37,9 +37,9 @@ When analyzing, modifying, or extending this repository, every AI agent **MUST**
 linux-mintXFCE-guide/
 ├── index.html            # Primary UI layout & semantic DOM tree
 ├── css/
-│   └── style.css         # Mint-Y CSS variables, layout grids, components (~660 lines)
+│   └── style.css         # Mint-Y CSS variables, layout grids, components (~1450 lines)
 ├── js/
-│   └── app.js            # Modular application controller (~1300 lines)
+│   └── app.js            # Taste-station simulators, theme, preview modal (~1290 lines)
 ├── knowledge.md          # Domain knowledge base & Lovable project brief
 ├── TECHNICAL_REPORT.md   # Architectural whitepaper & subsystem state machines
 ├── AGENTS.md             # This agent operation manual
@@ -49,16 +49,17 @@ linux-mintXFCE-guide/
 ### 2.1 Key DOM Anchors in `index.html`
 | Section / Component | Container ID / Class | Key Sub-Elements |
 | :--- | :--- | :--- |
-| **Sticky Navigation** | `header.site-header` | `#theme-toggle-btn`, `.nav-links` |
-| **Hero Reassurance** | `section.hero-section` | `.hero-title`, `.hero-badges` |
-| **Rosetta Stone** | `section#rosetta-stone` | `.comparison-table`, `.concept-row` |
-| **Timeshift Module** | `section#timeshift-module` | `#timeshift-step-container`, `#timeshift-wizard-btn` |
-| **Whisker Menu** | `section#whisker-module` | `#whisker-search-input`, `#whisker-categories`, `#whisker-app-list` |
-| **Software Manager** | `section#software-module` | `#software-search-input`, `#software-category-filter`, `#software-grid` |
-| **Thunar File Manager**| `section#thunar-module` | `#thunar-sidebar`, `#thunar-breadcrumbs`, `#thunar-file-grid`, `#thunar-modal` |
-| **Terminal Sandbox** | `section#terminal-module`| `#terminal-output`, `#terminal-input`, `.quick-cmd-btn` |
-| **Knowledge Checks** | `section#quizzes` | `.quiz-box[data-quiz-id="quiz-1"..."quiz-5"]`, `.quiz-option-btn`, `.quiz-retry-btn` |
-| **Readiness Tracker** | `section#checklist` | `#checklist-form`, `.checklist-item input`, `#readiness-progress-bar`, `#completion-modal` |
+| **Sticky Navigation** | `header.top-nav` | `.brand`, `.nav-links`, `#theme-toggle-btn` |
+| **Hero** | `section.hero` | `h2`, `.hero-cta` (`a[href="#taste"]`) |
+| **The Deal** | `section#the-deal` | `.deal-lede`, `.deal-list` |
+| **Taste Stations** | `main#taste` | `article#module-1` … `article#module-5`, `.taste-takeaway` |
+| **Timeshift Taste** | `#window-timeshift` | `#timeshift-status`, `#btn-take-snapshot`, `#btn-simulate-break`, `#btn-restore-snapshot` |
+| **Whisker Taste** | `#window-whisker` | `#whisker-search`, `#whisker-apps-container`, `#whisker-menu-trigger`, `.xfce-mock-panel` |
+| **Software Taste** | `#window-software` | `#software-search`, `#software-category-filter`, `#software-grid` |
+| **Thunar Taste** | `#window-thunar` | `#thunar-sidebar-items`, `#thunar-breadcrumbs`, `#thunar-files`, `#thunar-file-info` |
+| **Terminal Taste** | `#window-terminal` | `#terminal-screen`, `#terminal-input`, `#term-run-btn`, `#terminal-command-chips` |
+| **Decide** | `section#decide` | `.decide-card`, `.decide-actions` |
+| **Preview Modal** | `#mock-preview-modal` | `#mock-modal-title`, `#mock-modal-body`, `#mock-modal-close-btn` |
 
 ---
 
@@ -72,10 +73,9 @@ linux-mintXFCE-guide/
 ### 3.2 Key Data Dictionaries
 - **`COMMANDS`** (Terminal REPL): Dictionary mapping command strings (`pwd`, `ls`, `uname -a`, `free -h`, `cat welcome_notes.txt`, `neofetch`, etc.) to HTML response strings.
 - **`THUNAR_DIRS`** (VFS): Object mapping absolute simulated path strings (e.g. `'/home/newcomer'`, `'/home/newcomer/Documents'`) to arrays of file/directory objects (`{ name, type, icon, size }`).
-- **`APPS`** (Software Manager): Array of software package objects (`{ id, name, cat, icon, desc, rating, size, type, installed }`).
+- **`SOFTWARE_CATALOG`** (Software Manager): Array of software package objects (`{ id, name, cat, icon, desc, rating, size, type, installed }`).
 - **`WHISKER_APPS`** (Menu Launcher): Array of launcher items (`{ name, cat, icon, desc }`).
-- **`QUIZ_DATA`** (Knowledge Checks): Object mapping quiz IDs (`quiz-1` through `quiz-5`) to `{ answer: 'a'|'b'|'c', feedback: '...' }`.
-- **`LEVELS`** (Level Progression): Array of level descriptors `{ level, moduleId, label, tasks: [taskId, quizId] }` defining the strict 5-level unlock path. **Unlock state is derived** from milestone flags in `appState.progress` via `isLevelUnlocked()`, `getCompletedLevelCount()`, `applyLevelLocks()`, and `renderLevelPath()` — never stored separately.
+- There is intentionally **no quiz, checklist, level, or progress state** anywhere in the codebase. Do not reintroduce `QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `markProgress`, or `updateProgressUI` without explicit user approval.
 
 ---
 
@@ -95,7 +95,7 @@ To register a new command in the Demystified Terminal simulator:
    // In handleTerminalSubmit(input):
    // Aliases map automatically if key exists in COMMANDS
    ```
-4. Optionally add a quick-run chip button in `index.html` under `#terminal-quick-cmds`:
+4. Optionally add a quick-run chip button in `index.html` under `#terminal-command-chips`:
    ```html
    <button class="quick-cmd-btn" data-cmd="whoami">whoami</button>
    ```
@@ -119,7 +119,7 @@ To create a new navigable folder or previewable file:
 4. Ensure no references to music or music platforms are included anywhere in path names, app descriptors, or filenames.
 
 ### Recipe 3: Adding an Application to the Software Manager
-1. In `js/app.js`, locate `const APPS = [ ... ]`.
+1. In `js/app.js`, locate `const SOFTWARE_CATALOG = [ ... ]`.
 2. Append the new application descriptor:
    ```javascript
    {
@@ -136,19 +136,11 @@ To create a new navigable folder or previewable file:
    ```
 3. The UI will automatically render the card, categorize it, enable search indexing, and attach install/uninstall lifecycle listeners.
 
-### Recipe 4: Altering the Level Progression Path
-The level system is fully data-driven — never hand-edit the lock overlays in `index.html`.
-1. Open `const LEVELS = [ ... ]` in `js/app.js` (section 12.5).
-2. Edit a descriptor to change which gates a level requires, or to retitle a module:
-   ```javascript
-   { level: 2, moduleId: 'module-2', label: 'Whisker Menu & Navigation', tasks: ['task-whisker', 'quiz-2'] }
-   ```
-3. Constraints when editing:
-   - Levels are unlocked **in array order** (level *n* requires level *n−1* complete) — never reorder without updating `moduleId`/`tasks`.
-   - `tasks` must reference real milestone ids present in `TRACKED_TASKS` (a simulator `task-*` id plus its `quiz-*` id).
-   - Adding a level requires a matching `.module-card[data-level]` block; removing one requires deleting its module card from `index.html`.
-   - To widen the path, increment the graduation threshold by adding levels to `LEVELS` — the graduation node re-derives automatically.
-4. Never introduce new storage keys for lock state; unlocks must stay derived from `appState.progress`.
+### Recipe 4: Adding a Taste Station
+New stations are rare — the page is fixed at five tastes plus the decision card.
+1. Copy an existing `article.module-card` block in `index.html` (keep the `id="module-N"` sequence unbroken) with one context paragraph (`.module-intro`), the interactive demo, and one takeaway (`.status-alert.success.taste-takeaway`).
+2. Wire the demo with a new `initXSimulator()` in `js/app.js`, registered in `bootstrap()`, with existence guards on every `getElementById`.
+3. Never add quizzes, locks, progress tracking, or gating — all stations are always interactive.
 
 ---
 
@@ -161,14 +153,13 @@ Whenever making changes, an AI agent must perform the following self-checks:
 | **Syntax Validation** | Zero parse errors, balanced brackets, escaped strings | Inspect template literals for raw backticks (`` ` ``) |
 | **Music Reference Audit** | 0 occurrences of "music" or music platforms project-wide | Grep for `music`, `spotify`, etc. and purge project-wide |
 | **Storage Fault Test** | Mocking `localStorage = null` does not crash app | Ensure `safeStorage` fallback dictionary is active |
-| **Theme Switching** | Toggling theme sets `data-theme` attribute on `<html>` | Verify `initThemeToggle()` listener binding |
-| **Terminal Output** | Executing commands appends HTML and scrolls to bottom | Verify `#terminal-output` container and `.scrollTop` |
-| **Thunar Breadcrumbs** | Clicking breadcrumbs navigates to parent directories | Verify `renderBreadcrumbs()` click handler |
-| **Quiz Retries** | Clicking "Try Again" clears selections and error banner | Verify `initQuizzes()` reset logic |
-| **Readiness Percentage** | Checking boxes increments progress from 0% to 100% | Verify `updateReadinessProgress()` computation |
-| **Level Locking** | Only Level 1 interactive at load; Levels 2–5 dimmed under `🔒` overlays | Verify `applyLevelLocks()` toggling `.is-locked` |
-| **Level Unlock Flow** | Completing a level's task + quiz unlocks the next, fires a toast, updates the path | Complete a full walkthrough; inspect `getCompletedLevelCount()` |
-| **Level Re-Lock** | "Try Again" on a finishing quiz (or progress reset) re-derives locks to prior state | Verify `updateProgressUI()` recomputes without stale unlocks |
+| **Theme Switching** | Toggling theme sets `data-theme` attribute on `<html>` | Verify `initTheme()` listener binding |
+| **Station Interactivity** | All five taste stations respond on load with no gating | Confirm no lock overlays, disabled states, or level checks block input |
+| **Terminal Output** | Executing commands appends HTML and scrolls to bottom | Verify `#terminal-screen` container and `.scrollTop` |
+| **Thunar Breadcrumbs** | Clicking breadcrumbs navigates to parent directories | Verify breadcrumb click handler in `initThunarSimulator()` |
+| **Preview Modal** | Opening a file/app preview traps Tab focus; Escape closes; focus returns to trigger | Verify `trapTab`, `focusDialog`, `restoreFocus` wiring in `initMockModal()` |
+| **Anchor Navigation** | Nav links and hero CTA smooth-scroll to `#the-deal`, `#taste`, `#decide` | Verify target IDs exist and are unique |
+| **No Dead References** | No JS references to removed quiz/level/checklist/translator IDs | Grep for `quiz-`, `check-`, `level-`, `completion-modal`, `updateProgressUI` → zero hits |
 
 ---
 

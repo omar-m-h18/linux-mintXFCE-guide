@@ -3,7 +3,7 @@
 > **Project Name**: Linux Mint XFCE Guide  
 > **Repository Name**: linux-mintXFCE-guide  
 > **Target Audience**: Windows & macOS switchers, total Linux beginners, non-technical users, learners experiencing terminal anxiety  
-> **Core Mission**: Demystify Linux Mint XFCE through interactive, zero-risk visual simulations, proving that modern Linux is intuitive, resilient, and completely usable without opening a command prompt.
+> **Core Mission**: Let people who have never tried Linux taste it before deciding — five clickable stations covering the real Mint workflow (safety net, Start menu, app store, files, terminal), with zero install, zero risk, and zero grading. The message is one sentence: try it here first, then decide.
 
 ---
 
@@ -19,14 +19,15 @@ When newcomers consider migrating from Windows or macOS to Linux, they are frequ
 - **Fear of the Unknown**: Lack of a safe "sandbox" where they can explore desktop features (like Timeshift or the Whisker Menu) before installing Linux on physical hardware.
 
 ### 1.2 The Solution
-The **Linux Mint XFCE Guide** is a 100% client-side, interactive educational application built to eradicate terminal panic. It provides high-fidelity, sandbox simulations of core Linux Mint XFCE desktop components directly inside any standard web browser:
-1. **Timeshift Snapshot Simulation**: Proves to users that their system has a built-in "time machine" safety net before they even begin.
-2. **Whisker Menu Desktop Launcher**: Demonstrates the familiar Start-menu paradigm, search capabilities, and category organization.
-3. **Software Manager Simulator**: Shows how safe, one-click app installs replace risky web browser downloads.
-4. **Thunar File Manager Sandbox**: Interactive directory navigation explaining the Linux file hierarchy (`/home/username`) without drive letters.
-5. **Demystified Safe Terminal**: A friendly, sandbox command prompt featuring Windows-to-Linux command translations, plain-English explanations, and explicit reassurance that the terminal is strictly optional.
-6. **Knowledge Check Quizzes & Readiness Checklist**: Instant interactive validation with cheerful feedback and persistent progress tracking.
-7. **Strict Level Progression**: The five modules run as Levels 1–5 on a guided learning path. Level 1 is always open; every subsequent level is hard-locked until the previous level's simulator task **and** quiz are both mastered. A completion toast fires on every level-up, and graduating Level 5 unlocks the certificate celebration.
+The **Linux Mint XFCE Guide** is a 100% client-side tasting menu for first-timers. Instead of lessons, vocabulary tables, quizzes, or locked levels, it offers five clickable stations — each one a real piece of the Mint workflow — followed by a single decision section with the real next step:
+1. **Taste 1 — Safety Net (Timeshift)**: Break the system on purpose, fix it in one click.
+2. **Taste 2 — Whisker Menu**: The Start menu newcomers already know; search, browse, launch.
+3. **Taste 3 — Software Manager**: One safe store; search, install, remove. No sketchy downloads.
+4. **Taste 4 — Thunar Files**: No `C:\` drive; one Home folder with everything yours.
+5. **Taste 5 — Terminal (Optional)**: Try a command, then notice this screen is never required.
+6. **Decide**: Liked the taste? Try the full system from a USB stick — download links and forums included.
+
+Each station is one context line, the interactive demo, and one takeaway line. No concept-lecture cards, no quizzes, no locks, no certificate.
 
 ---
 
@@ -79,49 +80,38 @@ Every interactive simulator is wrapped in an authentic XFCE-style desktop window
 
 ## 4. Subsystems & Module Breakdown
 
-### 4.1 Header & Hero Reassurance
-- **Header**: Sticky navigation with brand badge ("Linux Mint XFCE Newcomer Launchpad") and quick links to modules.
-- **Theme Switcher**: Dual-mode button (`☀️ Light Mode` / `🌙 Dark Mode`) with automatic system preference detection (`prefers-color-scheme`) and persistent storage.
-- **Hero Banner**: High-impact, anxiety-reducing introduction emphasizing:
-  - *No commands needed.*
-  - *Your computer will not break.*
-  - *You can try everything right here in your browser.*
+### 4.1 Header, Hero & The Deal
+- **Header**: Sticky navigation with brand badge, anchor links (The deal · Taste · Decide), and the theme switcher. No progress widget — nothing is tracked.
+- **Theme Switcher**: Dual-mode button (`☀️ Light Mode` / `🌙 Dark Mode`) with automatic system preference detection (`prefers-color-scheme`) and persistent storage via `safeStorage`.
+- **Hero Banner**: Three elements only — headline (*"Never tried Linux? Taste it here first."*), one subline, one `[ Start tasting ]` call-to-action.
+- **The Deal (`#the-deal`)**: ~40 words plus four plain truths (no install, no risk, five minutes, then decide). The core message is delivered once, up front. There is no vocabulary/translator section anywhere on the page.
 
-### 4.2 Windows-to-Mint Rosetta Stone
-An interactive concept comparison table mapping familiar Windows paradigms to Linux Mint counterparts:
-- Start Menu $\rightarrow$ Whisker Menu
-- File Explorer / `C:\` $\rightarrow$ Thunar & Home Directory (`/home/username`)
-- Control Panel / Settings $\rightarrow$ System Settings
-- App Installers (`.exe`) $\rightarrow$ Software Manager (One-Click)
-- Windows Update $\rightarrow$ Update Manager (Non-intrusive, no forced reboots)
-- System Restore $\rightarrow$ Timeshift (Complete snapshot rollbacks)
-
-### 4.3 Module 1: Timeshift Snapshot Simulator
-- **Objective**: Eliminate anxiety over "breaking" the system by showing how simple disaster recovery is.
+### 4.3 Taste 1: Timeshift Safety Net
+- **Objective**: Let the visitor break the system on purpose and fix it in one click — the takeaway is the safety net, not the procedure.
 - **Phases**:
   1. *Type Selection*: Explains RSYNC (system file snapshots) vs BTRFS.
   2. *Location Selection*: Demonstrates selecting backup drives or partitions.
   3. *Snapshot Creation*: Animated progress bar demonstrating snapshot capture.
   4. *Restoration Preview*: Shows how single-click rollbacks restore a broken OS in under 2 minutes.
 
-### 4.4 Module 2: Whisker Menu Simulator
-- **Objective**: Provide a tactile experience of the Linux Mint XFCE application launcher.
+### 4.4 Taste 2: Whisker Menu
+- **Objective**: Show that opening apps works exactly like the corner of the screen newcomers already know.
 - **Features**:
   - Category navigation: *All, Favorites, Internet, Office, Multimedia, System, Administration*.
   - Real-time search filter with keyboard navigation support.
   - Interactive application launcher with live preview alerts.
   - Quick power controls (Lock, Log Out, Restart, Shut Down).
 
-### 4.5 Module 3: Software Manager Simulator
-- **Objective**: Teach newcomers how software is installed safely without third-party web downloads.
+### 4.5 Taste 3: Software Manager
+- **Objective**: Show one safe store replacing web-hunted downloads — search, install, remove.
 - **Features**:
   - Categorized browsing (*Featured, Internet, Office, Graphics, Multimedia, System*).
   - Search bar with instant real-time filtering.
   - Interactive application cards showing ratings, descriptions, and package badges (System Package vs Flatpak).
   - One-click Install / Uninstall cycle with simulated progress bars and dynamic state reflection.
 
-### 4.6 Module 4: Thunar File Manager Simulator
-- **Objective**: Explain the single-root Linux filesystem hierarchy and abolish drive-letter confusion.
+### 4.6 Taste 4: Thunar Files
+- **Objective**: Show there is no `C:\` drive — one Home folder with everything yours, right where expected.
 - **Features**:
   - Left sidebar navigation: Places (*Home, Desktop, Documents, Downloads, Pictures, Videos, File System, Trash*) and Drives (*Work_Projects*).
   - Interactive breadcrumbs with clickable path traversal.
@@ -129,8 +119,8 @@ An interactive concept comparison table mapping familiar Windows paradigms to Li
   - File inspector modal: Clicking files (e.g., `budget.xlsx`, `welcome_notes.txt`) opens a preview dialog.
   - Zero reference to music directories, songs, or music platforms project-wide in accordance with project content guidelines.
 
-### 4.7 Module 5: Demystifying the Terminal Simulator
-- **Objective**: Transform the command line from an intimidating barrier into a friendly, optional sandbox.
+### 4.7 Taste 5: Terminal (Optional)
+- **Objective**: Let the visitor try one command, then land the takeaway: everything above worked with a mouse.
 - **Features**:
   - Read-only safe interactive prompt with simulated cursor.
   - One-click quick command buttons (`pwd`, `ls`, `uname -a`, `free -h`, `neofetch`, etc.).
@@ -138,28 +128,14 @@ An interactive concept comparison table mapping familiar Windows paradigms to Li
   - Plain-English pedagogical annotations accompanying every command output.
   - Authentic ASCII art system summary (`neofetch`) formatted safely without template literal parsing hazards.
 
-### 4.8 Knowledge Check Quizzes
-- Five targeted multiple-choice checks placed after key concept sections.
-- Immediate visual feedback (green for correct, amber for hint/retry).
-- Dynamic retry button allowing users to re-attempt questions without page reloads.
-- Plain-English explanations reinforcing *why* an answer is correct.
+### 4.8 Decide: The Real Next Step
+- A single closing card (`#decide`): *"Liked the taste? Here is the real next step."*
+- Points to trying the full system from a USB stick, the official download page, the installation guide, and the community forums.
+- This is the only place the page asks the visitor to do anything real — deliberately, after tasting.
 
-### 4.9 Readiness Checklist & Graduation
-- 6-point self-assessment checklist tracking confidence across:
-  - System snapshots with Timeshift.
-  - Launching apps via Whisker Menu.
-  - Installing safe software from Software Manager.
-  - Finding files in `/home/username`.
-  - Understanding terminal optionality.
-  - Knowing where to get help (Linux Mint Community Forums).
-- Interactive celebration dialog triggered upon 100% completion.
-
-### 4.10 Level Progression & Guided Unlocking
-- **Structure**: `LEVELS` maps Levels 1–5 to the five module cards (`task-snapshot`+`quiz-1`, `task-whisker`+`quiz-2`, `task-software`+`quiz-3`, `task-thunar`+`quiz-4`, `task-terminal`+`quiz-5`), plus a Graduation node.
-- **Strict gating**: A module is non-interactive (dimmed under a `🔒` overlay) until the previous level is fully complete. Clicking a locked card jumps to the blocking level.
-- **Visual learning path**: A 6-node strip after the hero renders `done` / `current` / `locked` states and jumps to any unlocked module on click.
-- **Feedback**: Level-up toast on each boundary crossing; graduation modal when all five levels are done. The sticky-nav widget shows `Level N of 5` (or `🎓 Graduated`) with the overall completion bar.
-- **Derived state**: Unlock status is always recomputed from milestone flags — never persisted — so reloads, quiz retries, and progress resets re-lock correctly with no extra storage keys.
+### 4.9 Removed Systems (Do Not Reintroduce Without Discussion)
+- Knowledge-check quizzes, readiness checklist/certificate, level progression with lock overlays, learning-path strip, level toasts, graduation modal, and the Windows-to-Mint translator were all removed: they turned a tasting menu into a course and hid content behind tests.
+- Their code (`QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `initQuizzes`, `initChecklistClicks`, `initLevelSystem`, `markProgress`, `updateProgressUI`, `initTranslator`) and styles were deleted from `js/app.js` and `css/style.css`.
 
 ---
 
@@ -170,11 +146,9 @@ All state keys are accessed via `safeStorage`:
 | Storage Key | Format / Type | Purpose |
 | :--- | :--- | :--- |
 | `mint_theme` | String: `'dark'` \| `'light'` | Stores user's preferred visual theme |
-| `mint_quiz_progress` | JSON Object: `{ "quiz-1": true, ... }` | Tracks completed quizzes |
-| `mint_checklist_progress` | JSON Array: `["check-1", "check-2"]` | Tracks completed readiness checklist items |
 | `mint_installed_apps` | JSON Array: `["vlc", "libreoffice"]` | Persists custom installed apps in Software Manager |
 
-> **Note**: Level-unlock state is **derived**, not stored. The level subsystem recomputes which modules are unlocked purely from the milestone flags in `mint_guide_progress_v2` (+ synced quiz/checklist keys), so no dedicated level-storage key exists.
+> **Note**: Nothing about visitor progress is stored — there are no quizzes, checklists, or levels. Only the theme preference and the Software Manager's installed-app list persist.
 
 ---
 
@@ -182,6 +156,7 @@ All state keys are accessed via `safeStorage`:
 
 1. **Keep It Zero-Dependency**: Never add npm dependencies, CDNs, or external style imports.
 2. **Preserve User Empathy**: Always frame terminology in beginner-friendly language. Avoid jargon without an immediate, gentle plain-English translation.
-3. **Validate All States**: When adding new commands or directories, update both the visual simulator objects (`COMMANDS`, `THUNAR_DIRS`) and the corresponding knowledge check feedback.
+3. **Validate All States**: When adding new commands, directories, or catalog apps, update the corresponding simulator objects (`COMMANDS`, `THUNAR_DIRS`, `SOFTWARE_CATALOG`, `WHISKER_APPS`).
 4. **Enforce Storage Safety**: Never call `localStorage.setItem()` directly; always use `safeStorage.setItem()`.
+5. **Protect the Tasting Model**: Do not reintroduce quizzes, locks, levels, progress tracking, or vocabulary sections without explicit user approval — the page is a tasting menu, not a course.
 

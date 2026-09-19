@@ -5,8 +5,8 @@
 [![Offline Ready](https://img.shields.io/badge/Offline-100%25_Ready-blue?style=for-the-badge)](https://github.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-> **"You can't break your computer here."**  
-> An interactive, zero-risk visual playground designed for Windows and macOS users taking their first steps into Linux Mint XFCE.
+> **"Never tried Linux? Taste it here first."**  
+> A tasting menu for first-timers: click around a real-feeling Mint desktop in your browser — no install, no risk, five minutes. Then decide.
 
 ---
 
@@ -16,7 +16,7 @@ Switching operating systems can feel intimidating. Newcomers are often told that
 
 **The truth:** Modern **Linux Mint XFCE** is as intuitive and visual as Windows. You can browse the web, write documents, organize photos, install software, and keep your computer safe without ever touching a command prompt.
 
-This **Linux Mint XFCE Guide** lets you test-drive Linux Mint XFCE right inside your browser before you install anything. Explore the desktop, install simulated apps, navigate files, and see how simple Linux really is!
+This **Linux Mint XFCE Guide** is a tasting menu, not a course: five clickable stations covering the real Mint workflow, each ending in a one-line takeaway — then a single decision section with the real next step. No quizzes, no locked levels, no grading.
 
 ---
 
@@ -24,64 +24,55 @@ This **Linux Mint XFCE Guide** lets you test-drive Linux Mint XFCE right inside 
 
 ```text
  ┌─────────────────────────────────────────────────────────────┐
- │                    Linux Mint XFCE Guide                    │
+ │              Taste Linux Mint XFCE Before You Decide        │
  ├───────────────────┬───────────────────┬─────────────────────┤
- │ 🛡️ Timeshift      │ 🚀 Whisker Menu   │ 🛍️ Software Store   │
- │   "Time Machine"  │   Familiar Start  │   One-Click Safe    │
- │   System Backups  │   Application Hub │   App Installations │
- ├───────────────────┼───────────────────┼─────────────────────┤
- │ 📂 Thunar Files   │ 💻 Safe Terminal  │ 🎯 Knowledge Checks │
- │   No Drive Letters│   Friendly REPL   │   Interactive Quizzes│
- │   Home Directory  │   Terminal is opt.│   Readiness Tracker │
+ │ 🛡️ Safety Net     │ 🚀 Whisker Menu   │ 🛍️ Software Store   │
+ │   Break it, fix   │   Familiar Start  │   One-Click Safe    │
+ │   it in 1 click   │   Application Hub │   App Installations │
+ ├───────────────────┴───────────────────┴─────────────────────┤
+ │ 📂 Thunar Files   │ 💻 Terminal (opt.)│ ✅ Decide           │
+ │   No Drive Letters│   Try a command,  │   USB trial, links, │
+ │   Home Directory  │   never required  │   forums            │
  └───────────────────┴───────────────────┴─────────────────────┘
-```
+ ```
 
-### 1. 🛡️ Timeshift Snapshot Simulator
-*Experience the peace of mind that comes with a built-in safety net.*
-- Learn how RSYNC snapshots automatically guard your system files.
-- Walk through a 4-step interactive backup wizard.
-- See how an accidental mishap can be undone in two clicks.
+### 1. 🛡️ Taste 1 — Safety Net (Timeshift)
+*Break it on purpose, fix it in one click.*
+- Take a snapshot, simulate a bad tweak, restore it back in seconds.
+- Takeaway: the undo button for the whole system.
 
-### 2. 🚀 Whisker Menu Interactive Desktop
+### 2. 🚀 Taste 2 — Whisker Menu
 *A Start menu you already know how to use.*
-- Browse applications by category: Internet, Office, Multimedia, System, and Administration.
+- Browse applications by category: Internet, Office, Multimedia, System.
 - Test-drive instant real-time search filtering.
-- Experience the familiar bottom-left panel layout of XFCE.
+- Takeaway: clicks and typing, no manual needed.
 
 ### 3. 🛍️ Software Manager (App Store)
 *Say goodbye to sketchy `.exe` download websites.*
 - Explore curated software like Firefox, LibreOffice, GIMP, and VLC.
 - Click **Install** or **Remove** to watch simulated package deployments.
-- Understand the difference between verified System Packages and Flatpaks.
+- Takeaway: search, click, done — no bundled toolbars.
 
-### 4. 📂 Thunar File Manager Sandbox
-*Demystifying the Linux file system.*
+### 4. 📂 Taste 4 — Thunar Files
+*No drive letters.*
 - Say farewell to `C:\` and `D:\` drives.
-- Understand your **Home Directory** (`/home/username`) where all your personal documents, pictures, and downloads live.
-- Click through real folder breadcrumbs, browse directories, and open simulated file previews.
+- Your **Home Directory** (`/home/username`) holds documents, pictures, and downloads.
+- Takeaway: everything is where you would expect.
 
-### 5. 💻 Demystifying the Terminal (Safe REPL)
-*Conquer terminal anxiety once and for all.*
-- A completely safe, read-only terminal simulator where nothing can go wrong.
-- Windows-to-Linux Rosetta Stone: type Windows commands like `dir` or `cls` and watch them translate automatically to `ls` and `clear`.
-- Click quick-run buttons for classic commands like `pwd`, `neofetch`, and `uname -a`.
-- Every command comes with a **Plain-English Explanation**!
+### 5. 💻 Taste 5 — Terminal (Optional)
+*Try a command, then forget about it.*
+- A completely safe terminal where nothing can go wrong.
+- Click quick-run buttons for `pwd`, `neofetch`, `uname -a`, and more.
+- Takeaway: everything above worked with a mouse — this screen is optional.
 
-### 6. 🧠 Quizzes & Readiness Checklist
-*Validate your knowledge and track your migration readiness.*
-- 5 targeted knowledge check quizzes with instant feedback and retries.
-- Interactive 6-step checklist covering core desktop proficiencies.
-- Rewarding completion celebration when you hit 100%!
+### 6. ✅ Decide — The Real Next Step
+*Liked the taste?*
+- Try the full system from a USB stick before installing anything.
+- Direct links: download, installation guide, community forums.
 
 ### 7. 🌗 Mint-Y Dark & Light Theme
 - Authentic Linux Mint styling using official Mint-Y green accents.
 - Seamless one-click dark/light toggle with automatic preference detection.
-
-### 8. 🎯 Strict Level Progression
-- A guided 5-level learning path: Level 1 (Safety Net) → Level 5 (Terminal).
-- Levels unlock **only** after a module's simulator + quiz are both mastered.
-- Visual learning-path strip with done / current / locked states, `Level N of 5` nav badge, level-up toasts, and a graduation celebration.
-- Unlock state is derived from progress — no extra storage, re-locks correctly on reset or retry.
 
 ---
 
@@ -115,9 +106,9 @@ python -m http.server 8000
 linux-mintXFCE-guide/
 ├── index.html           # Semantic, accessible HTML5 structure
 ├── css/
-│   └── style.css        # Responsive Mint-Y CSS3 design system (~660 lines)
+│   └── style.css        # Responsive Mint-Y CSS3 design system (~1450 lines)
 ├── js/
-│   └── app.js           # Vanilla ES6+ application logic & simulators (~1300 lines)
+│   └── app.js           # Vanilla ES6+ taste-station simulators, theme, preview modal (~1290 lines)
 ├── knowledge.md         # Comprehensive project knowledge base
 ├── TECHNICAL_REPORT.md  # Detailed engineering architecture report
 ├── AGENTS.md            # Autonomous AI agent documentation & API map
