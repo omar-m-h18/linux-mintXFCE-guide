@@ -55,6 +55,28 @@
     }
   };
 
+  // --- 1b. HTML ESCAPE UTILITY ---
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
+      .replace(/"/g, '"')
+      .replace(/'/g, ''');
+  }
+
+  // --- 1c. TOAST HELPER (RACE-SAFE) ---
+  function showToast(el, html, ms) {
+    if (!el) return;
+    if (el._hideTimer) clearTimeout(el._hideTimer);
+    el.innerHTML = html;
+    el.style.display = 'flex';
+    el._hideTimer = setTimeout(function () {
+      el.style.display = 'none';
+      el._hideTimer = null;
+    }, ms);
+  }
+
   // --- APP STATE ---
 
   // Initial installed apps
@@ -63,9 +85,18 @@
     const rawApps = safeStorage.getItem(STORAGE_KEY_APPS);
     if (rawApps) {
       const parsedApps = JSON.parse(rawApps);
-      if (Array.isArray(parsedApps) && parsedApps.length > 0) {
-        initialApps = parsedApps;
+      if (Array.isArray(parsedApps)) {
+        initialApps = parsedApps
+          .filter(function (name) {
+            return typeof name === 'string' && name.trim().length > 0 && name.length <= 120;
+          })
+          .map(function (name) {
+            return name.trim();
+          });
       }
+    }
+    if (initialApps.length === 0) {
+      initialApps = ['Firefox Web Browser'];
     }
   } catch (e) {
     initialApps = ['Firefox Web Browser'];
@@ -173,7 +204,7 @@
     if (!modal || !titleEl || !bodyEl) return;
 
     lastFocusedEl = document.activeElement;
-    titleEl.innerHTML = '<span class="xfce-title-icon">' + icon + '</span> <span>' + title + '</span>';
+    titleEl.innerHTML = '<span class="xfce-title-icon">' + escapeHtml(icon) + '</span> <span>' + escapeHtml(title) + '</span>';
     bodyEl.innerHTML = contentHtml;
     modal.style.display = 'flex';
     focusDialog(modal);
@@ -270,13 +301,17 @@
 
     if (!btnSnapshot || !btnBreak || !btnRestore || !statusBox) return;
 
+    let timeshiftRun = 0;
+
     btnSnapshot.onclick = function () {
+      const run = ++timeshiftRun;
       btnSnapshot.disabled = true;
       btnSnapshot.innerHTML = '⏳ Creating Snapshot...';
       statusBox.className = 'status-alert info';
       statusBox.innerHTML = '📸 <strong>Capturing RSYNC Snapshot:</strong> Scanning system files (/etc, /usr, /bin)...';
 
       setTimeout(function () {
+        if (run !== timeshiftRun) return;
         appState.timeshiftStep = 1;
         if (step1) step1.className = 'timeline-step active';
         if (step2) step2.className = 'timeline-step';
@@ -288,6 +323,7 @@
     };
 
     btnBreak.onclick = function () {
+      timeshiftRun++;
       appState.timeshiftStep = 2;
       if (step1) step1.className = 'timeline-step';
       if (step2) step2.className = 'timeline-step compromised';
@@ -296,12 +332,14 @@
     };
 
     btnRestore.onclick = function () {
+      const run = ++timeshiftRun;
       btnRestore.disabled = true;
       btnRestore.innerHTML = '⏳ Restoring System...';
       statusBox.className = 'status-alert info';
       statusBox.innerHTML = '↺ <strong>Timeshift Rollback:</strong> Replacing altered system files with pristine snapshot...';
 
       setTimeout(function () {
+        if (run !== timeshiftRun) return;
         appState.timeshiftStep = 1;
         if (step1) step1.className = 'timeline-step active';
         if (step2) step2.className = 'timeline-step';
@@ -353,7 +391,7 @@
       });
 
       if (filtered.length === 0) {
-        appsList.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No applications found matching "' + query + '".</div>';
+        appsList.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No applications found matching "' + escapeHtml(query) + '".</div>';
         return;
       }
 
@@ -394,11 +432,7 @@
           const appDesc = item.getAttribute('data-desc') || '';
 
           if (feedbackToast) {
-            feedbackToast.style.display = 'flex';
-            feedbackToast.innerHTML = '🚀 <strong>Launched:</strong> "' + appName + '" opened on your desktop!';
-            setTimeout(function () {
-              feedbackToast.style.display = 'none';
-            }, 3000);
+            showToast(feedbackToast, '🚀 <strong>Launched:</strong> "' + escapeHtml(appName) + '" opened on your desktop!', 3000);
           }
 
           openMockModal(
@@ -680,6 +714,7 @@
     if (!grid) return;
 
     let currentSoftCat = 'all';
+    const pendingSoftwareOps = {};
 
     function renderSoftware(query) {
       const q = (query || (searchInput ? searchInput.value : '')).toLowerCase().trim();
@@ -693,15 +728,19 @@
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No software found for "' + (q || currentSoftCat) + '". Try searching "Steam" or "VLC"!</div>';
+        grid.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No software found for "' + escapeHtml(q || currentSoftCat) + '". Try searching "Steam" or "VLC"!</div>';
         return;
       }
 
-      grid.innerHTML = filtered.map(function (item) {
+grid.innerHTML = filtered.map(function (item) {
         const isInstalled = appState.installedApps.has(item.name);
+        const isPending = pendingSoftwareOps[item.id];
         let actionBtnHtml = '';
 
-        if (isInstalled) {
+        if (isPending) {
+          actionBtnHtml =
+            '<button type="button" class="sim-btn" disabled>⏳ Working...</button>';
+        } else if (isInstalled) {
           actionBtnHtml =
             '<div class="soft-action-group">' +
             '  <button type="button" class="sim-btn btn-open-app" data-id="' + item.id + '" data-name="' + item.name + '" data-icon="' + item.icon + '" data-desc="' + item.desc + '">✓ Open</button>' +
@@ -760,6 +799,9 @@
         const progBar = document.getElementById('prog-' + appId);
         const progFill = document.getElementById('fill-' + appId);
 
+        if (pendingSoftwareOps[appId]) return;
+        pendingSoftwareOps[appId] = true;
+
         installBtn.disabled = true;
         installBtn.innerHTML = '⏳ Installing...';
 
@@ -771,12 +813,14 @@
             progFill.style.width = progress + '%';
             if (progress >= 100) {
               clearInterval(timer);
+              delete pendingSoftwareOps[appId];
               appState.installedApps.add(appName);
               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
               renderSoftware();
             }
           }, 90);
         } else {
+          delete pendingSoftwareOps[appId];
           appState.installedApps.add(appName);
           safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
           renderSoftware();
@@ -815,6 +859,9 @@
         const progBar = document.getElementById('prog-' + appId);
         const progFill = document.getElementById('fill-' + appId);
 
+        if (pendingSoftwareOps[appId]) return;
+        pendingSoftwareOps[appId] = true;
+
         removeBtn.disabled = true;
         removeBtn.innerHTML = '⏳ Removing...';
 
@@ -826,12 +873,14 @@
             progFill.style.width = Math.max(0, progress) + '%';
             if (progress <= 0) {
               clearInterval(timer);
+              delete pendingSoftwareOps[appId];
               appState.installedApps.delete(appName);
               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
               renderSoftware();
             }
           }, 80);
         } else {
+          delete pendingSoftwareOps[appId];
           appState.installedApps.delete(appName);
           safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
           renderSoftware();
@@ -1021,11 +1070,7 @@
         }
       } else {
         if (fileInfoToast) {
-          fileInfoToast.style.display = 'flex';
-          fileInfoToast.innerHTML = '📄 <strong>' + name + '</strong>: ' + (desc || 'File in your Home directory.');
-          setTimeout(function () {
-            fileInfoToast.style.display = 'none';
-          }, 3500);
+          showToast(fileInfoToast, '📄 <strong>' + escapeHtml(name) + '</strong>: ' + escapeHtml(desc || 'File in your Home directory.'), 3500);
         }
 
         openMockModal(
@@ -1212,7 +1257,7 @@
       cmdBlock.innerHTML =
         '<div style="display: flex; gap: 0.4rem;">' +
         '  <span style="color: #4ade80; font-weight: 600;">newcomer@mint-xfce:~$</span>' +
-        '  <span style="color: #f1f5f9;">' + clean + '</span>' +
+        '  <span style="color: #f1f5f9;">' + escapeHtml(clean) + '</span>' +
         '</div>';
       screen.appendChild(cmdBlock);
 
@@ -1226,7 +1271,7 @@
         outBlock.innerHTML = known.output;
       } else {
         outBlock.innerHTML =
-          '<span style="color: #fca5a5;">Command \'' + clean + '\' not recognized in this beginner demo.</span><br>' +
+          '<span style="color: #fca5a5;">Command \'' + escapeHtml(clean) + '\' not recognized in this beginner demo.</span><br>' +
           '<span style="color: #94a3b8;">Try typing <strong>help</strong> or clicking one of the safe preset buttons below!</span>';
       }
 
