@@ -1730,7 +1730,7 @@ button {
 .progress-level-text {
   font-weight: 700;
   color: var(--mint-primary);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   white-space: nowrap;
 }
 
@@ -1753,7 +1753,7 @@ button {
 }
 
 .level-path-header h3 {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
