@@ -1964,3 +1964,22 @@ button {
     max-width: none;
   }
 }
+
+/* Shared empty-state (no search results) */
+.empty-state {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.empty-state-icon {
+  display: block;
+  font-size: 1.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.software-grid .empty-state {
+  grid-column: 1 / -1;
+}

@@ -572,7 +572,7 @@
       });
 
       if (filtered.length === 0) {
-        appsList.innerHTML = '<div style="padding: 1rem; color: var(--text-muted); font-size: 0.85rem;">No applications found matching "' + query + '".</div>';
+        appsList.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No applications found matching "' + query + '".</div>';
         return;
       }
 
@@ -913,7 +913,7 @@
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div style="grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--text-muted);">No software found for "' + (q || currentSoftCat) + '". Try searching "Steam" or "VLC"!</div>';
+        grid.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No software found for "' + (q || currentSoftCat) + '". Try searching "Steam" or "VLC"!</div>';
         return;
       }
 
