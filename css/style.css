@@ -906,17 +906,20 @@ button {
 
 .whisker-app-info {
   flex: 1;
+  min-width: 0;
 }
 
 .whisker-app-name {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .whisker-app-desc {
   font-size: 0.75rem;
   color: var(--text-muted);
+  overflow-wrap: anywhere;
 }
 
 /* XFCE Bottom Panel */
@@ -1043,9 +1046,14 @@ button {
   flex-shrink: 0;
 }
 
+.soft-meta {
+  min-width: 0;
+}
+
 .soft-meta h5 {
   font-size: 0.95rem;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .soft-meta p {
@@ -1224,6 +1232,8 @@ button {
   min-height: 240px;
   max-height: 380px;
   overflow-y: auto;
+  overflow-x: auto;
+  overflow-wrap: anywhere;
   color: var(--terminal-text);
   font-size: 0.85rem;
   line-height: 1.5;
@@ -1255,6 +1265,7 @@ button {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   flex: 1;
+  min-width: 0;
   outline: none;
 }
 
