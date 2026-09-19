@@ -716,7 +716,7 @@
 
   <!-- Interactive App/File Preview Modal Dialog -->
   <div id="mock-preview-modal" class="mock-modal-overlay">
-    <div class="mock-modal-dialog">
+    <div class="mock-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="mock-modal-title" tabindex="-1">
       <div class="xfce-titlebar">
         <div class="xfce-title" id="mock-modal-title">
           <span class="xfce-title-icon">🚀</span>
@@ -734,9 +734,9 @@
 
   <!-- Interactive Readiness Graduation Celebration Modal -->
   <div id="completion-modal" class="mock-modal-overlay" style="display: none;">
-    <div class="mock-modal-dialog cert-modal-dialog">
+    <div class="mock-modal-dialog cert-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="completion-modal-title" tabindex="-1">
       <div class="xfce-titlebar">
-        <div class="xfce-title">
+        <div class="xfce-title" id="completion-modal-title">
           <span class="xfce-title-icon">🎓</span>
           <span>Linux Mint XFCE Graduation Certificate</span>
         </div>

@@ -1542,6 +1542,10 @@ button {
   z-index: 2;
 }
 
+.mock-modal-dialog:focus {
+  outline: none;
+}
+
 /* Footer */
 .footer {
   margin-top: auto;

@@ -161,6 +161,42 @@
   }
 
   // --- 3. REUSABLE MODAL PREVIEW & COMPLETION MODAL ---
+  let lastFocusedEl = null;
+
+  function getFocusable(container) {
+    return Array.prototype.filter.call(
+      container.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'),
+      function (n) { return n.offsetParent !== null; }
+    );
+  }
+
+  function trapTab(e, dialog) {
+    if (e.key !== 'Tab') return;
+    const items = getFocusable(dialog);
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  function focusDialog(modal) {
+    const dialog = modal.querySelector('.mock-modal-dialog');
+    if (dialog) dialog.focus();
+  }
+
+  function restoreFocus() {
+    if (lastFocusedEl && typeof lastFocusedEl.focus === 'function') {
+      lastFocusedEl.focus();
+    }
+    lastFocusedEl = null;
+  }
+
   function openMockModal(title, icon, contentHtml) {
     const modal = document.getElementById('mock-preview-modal');
     const titleEl = document.getElementById('mock-modal-title');
@@ -168,9 +204,11 @@
 
     if (!modal || !titleEl || !bodyEl) return;
 
+    lastFocusedEl = document.activeElement;
     titleEl.innerHTML = '<span class="xfce-title-icon">' + icon + '</span> <span>' + title + '</span>';
     bodyEl.innerHTML = contentHtml;
     modal.style.display = 'flex';
+    focusDialog(modal);
 
     // Auto-bind close buttons inside modal
     const closeButtons = bodyEl.querySelectorAll('.modal-dismiss-btn');
@@ -182,12 +220,15 @@
   function closeMockModal() {
     const modal = document.getElementById('mock-preview-modal');
     if (modal) modal.style.display = 'none';
+    restoreFocus();
   }
 
   function openCompletionModal() {
     const modal = document.getElementById('completion-modal');
     if (modal) {
+      lastFocusedEl = document.activeElement;
       modal.style.display = 'flex';
+      focusDialog(modal);
       const dismissBtn = document.getElementById('completion-modal-dismiss-btn');
       if (dismissBtn) dismissBtn.onclick = closeCompletionModal;
       const closeBtn = document.getElementById('completion-modal-close-btn');
@@ -198,6 +239,7 @@
   function closeCompletionModal() {
     const modal = document.getElementById('completion-modal');
     if (modal) modal.style.display = 'none';
+    restoreFocus();
   }
 
   function initMockModal() {
@@ -221,6 +263,16 @@
       compModal.onclick = function (e) {
         if (e.target === compModal) closeCompletionModal();
       };
+    }
+
+    // Trap Tab focus within whichever dialog is open
+    if (modal) {
+      const dialog = modal.querySelector('.mock-modal-dialog');
+      if (dialog) dialog.onkeydown = function (e) { trapTab(e, dialog); };
+    }
+    if (compModal) {
+      const compDialog = compModal.querySelector('.mock-modal-dialog');
+      if (compDialog) compDialog.onkeydown = function (e) { trapTab(e, compDialog); };
     }
 
     // Escape key closes modals
