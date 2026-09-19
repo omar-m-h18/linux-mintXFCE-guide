@@ -1515,9 +1515,18 @@ button {
   border-radius: var(--radius-md);
   width: 100%;
   max-width: 540px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
   box-shadow: var(--shadow-lg);
   animation: fadeIn 0.2s ease;
+}
+
+.mock-modal-dialog .xfce-titlebar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 /* Footer */
