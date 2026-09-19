@@ -1661,6 +1661,26 @@ button {
   }
 }
 
+/* Navigation responsive integrity */
+@media (max-width: 720px) {
+  .brand-tag {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .progress-widget-bar,
+  .progress-widget > span:not(.progress-level-text) {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-text {
+    display: none;
+  }
+}
+
 /* =========================================================
    Level Progression Subsystem
    Strict sequential unlocking: Level N unlocks only when
