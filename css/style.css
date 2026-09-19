@@ -928,8 +928,10 @@ button {
   color: var(--panel-text);
   padding: 0.4rem 0.85rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 0.4rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.8rem;
   user-select: none;
@@ -937,6 +939,7 @@ button {
 
 .panel-left, .panel-right {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
 }
