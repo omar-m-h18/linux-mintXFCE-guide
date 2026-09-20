@@ -75,7 +75,8 @@ linux-mintXFCE-guide/
 - **`THUNAR_DIRS`** (VFS): Object mapping absolute simulated path strings (e.g. `'/home/newcomer'`, `'/home/newcomer/Documents'`) to arrays of file/directory objects (`{ name, type, icon, size }`).
 - **`SOFTWARE_CATALOG`** (Software Manager): Array of software package objects (`{ id, name, cat, icon, desc, rating, size, type, installed }`).
 - **`WHISKER_APPS`** (Menu Launcher): Array of launcher items (`{ name, cat, icon, desc }`).
-- There is intentionally **no quiz, checklist, level, or progress state** anywhere in the codebase. Do not reintroduce `QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `markProgress`, or `updateProgressUI` without explicit user approval.
+- There is intentionally **no persisted quiz, checklist, level, or progress state** anywhere in the codebase. Do not reintroduce `QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `markProgress`, or `updateProgressUI` without explicit user approval.
+- **Session-only gamification exception (approved 2026)**: A cosmetic streak counter + achievement badges (`gamiEarnBadge`, `gamiInit`, `gamiBurstConfetti`) light up five station badges and a progress ring in memory only. It is **never persisted** (no new `safeStorage` keys), **never gates or disables any station**, and resets on every page load. Do not extend it to per-user storage, toasts, or locked content without explicit user approval.
 
 ---
 
@@ -141,6 +142,7 @@ New stations are rare — the page is fixed at five tastes plus the decision car
 1. Copy an existing `article.module-card` block in `index.html` (keep the `id="module-N"` sequence unbroken) with one context paragraph (`.module-intro`), the interactive demo, and one takeaway (`.status-alert.success.taste-takeaway`).
 2. Wire the demo with a new `initXSimulator()` in `js/app.js`, registered in `bootstrap()`, with existence guards on every `getElementById`.
 3. Never add quizzes, locks, progress tracking, or gating — all stations are always interactive.
+4. Gamification is additive and cosmetic only: badge-earning calls (`gamiEarnBadge`) and the confetti burst must never disable buttons, gate content, or touch `safeStorage`. Badges re-pop on repeat triggers but the streak only increments once per module per page load.
 
 ---
 

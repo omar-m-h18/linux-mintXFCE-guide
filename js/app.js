@@ -328,6 +328,7 @@
         statusBox.innerHTML = '✨ <strong>System Restored in 5 Seconds:</strong> Everything is back to normal! Notice how Timeshift gives you complete peace of mind to explore.';
         btnRestore.disabled = false;
         btnRestore.innerHTML = '↺ Restore Snapshot';
+        gamiEarnBadge('module-1');
       }, 700);
     };
   }
@@ -435,6 +436,8 @@
             '  </button>' +
             '</div>'
           );
+
+          gamiEarnBadge('module-2');
 
         }
       };
@@ -746,6 +749,7 @@
           '  <div class="install-progress-bar" id="prog-' + item.id + '">' +
           '    <div class="install-progress-fill" id="fill-' + item.id + '"></div>' +
           '  </div>' +
+          '  <div class="progress-cheer is-hidden" id="cheer-' + item.id + '"></div>' +
           '  <div class="soft-bottom">' +
           '    <span class="soft-size">' + item.size + ' • Verified Mint Safe</span>' +
           '    ' + actionBtnHtml +
@@ -781,6 +785,17 @@
 
         installBtn.disabled = true;
         installBtn.innerHTML = '⏳ Installing...';
+        const cheerEl = document.getElementById('cheer-' + appId);
+        const cheerMsgs = [
+          'Unwrapping packages…',
+          'Laying out the files…',
+          'Almost there — a few final touches…',
+          'Done installing safely!'
+        ];
+        if (cheerEl) {
+          cheerEl.classList.remove('is-hidden');
+          cheerEl.textContent = cheerMsgs[0];
+        }
 
         if (progBar && progFill) {
           progBar.style.display = 'block';
@@ -788,16 +803,25 @@
           const timer = setInterval(function () {
             progress += 25;
             progFill.style.width = progress + '%';
+            if (cheerEl && cheerMsgs[progress / 25]) {
+              cheerEl.textContent = cheerMsgs[progress / 25];
+            }
             if (progress >= 100) {
               clearInterval(timer);
               appState.installedApps.add(appName);
               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
+              if (cheerEl) {
+                cheerEl.textContent = 'Installed with zero sketchy downloads.';
+                setTimeout(function () { cheerEl.classList.add('is-hidden'); }, 2000);
+              }
+              gamiEarnBadge('module-3');
               renderSoftware();
             }
           }, 90);
         } else {
           appState.installedApps.add(appName);
           safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
+          gamiEarnBadge('module-3');
           renderSoftware();
         }
         return;
@@ -836,6 +860,11 @@
 
         removeBtn.disabled = true;
         removeBtn.innerHTML = '⏳ Removing...';
+        const rCheerEl = document.getElementById('cheer-' + appId);
+        if (rCheerEl) {
+          rCheerEl.classList.remove('is-hidden');
+          rCheerEl.textContent = 'Gently letting it go…';
+        }
 
         if (progBar && progFill) {
           progBar.style.display = 'block';
@@ -843,10 +872,16 @@
           const timer = setInterval(function () {
             progress -= 35;
             progFill.style.width = Math.max(0, progress) + '%';
+            if (rCheerEl) {
+              rCheerEl.textContent = progress > 50 ? 'Gently letting it go…' : progress > 0 ? 'Almost there…' : 'Removed cleanly.';
+            }
             if (progress <= 0) {
               clearInterval(timer);
               appState.installedApps.delete(appName);
               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
+              if (rCheerEl) {
+                setTimeout(function () { rCheerEl.classList.add('is-hidden'); }, 2000);
+              }
               renderSoftware();
             }
           }, 80);
@@ -1039,6 +1074,7 @@
           renderDir('/home/newcomer');
         }
       } else {
+        gamiEarnBadge('module-4');
         if (fileInfoToast) {
           fileInfoToast.style.display = 'flex';
           fileInfoToast.innerHTML = '📄 <strong>' + name + '</strong>: ' + (desc || 'File in your Home directory.');
@@ -1243,6 +1279,9 @@
 
       if (known) {
         outBlock.innerHTML = known.output;
+        if (!known.clear) {
+          gamiEarnBadge('module-5');
+        }
       } else {
         outBlock.innerHTML =
           '<span style="color: #fca5a5;">Command \'' + escapeHtml(clean) + '\' not recognized in this beginner demo.</span><br>' +
@@ -1282,7 +1321,128 @@
   }
 
 
-  // --- 10. BULLETPROOF BOOTSTRAP ---
+  // --- 10. GAMIFICATION: PLAYFUL, IN-SESSION ONLY, NOTHING SAVED ---
+
+  // In-memory streak + earned badges. Resets on every page load on purpose.
+  let gamiStreak = 0;
+  let gamiTotal = 5;
+  const gamiEarned = {};
+
+  const GAMI_STATIONS = {
+    'module-1': { icon: '🛡️', label: 'Safety Net', cheer: 'You broke it on purpose and fixed it in one click. That badge is earned!' },
+    'module-2': { icon: '🚀', label: 'Whisker Menu', cheer: 'You launched an app with a click and a search. The menu is yours now!' },
+    'module-3': { icon: '📦', label: 'Software Manager', cheer: 'One safe install, zero sketchy downloads. Nicely done!' },
+    'module-4': { icon: '📁', label: 'Thunar Files', cheer: 'You found your way around the Home folder. No C: drive needed!' },
+    'module-5': { icon: '💻', label: 'Terminal', cheer: 'You typed a real command — and nothing exploded. That is the fun kind of power!' }
+  };
+
+  const GAMI_TITLES = [
+    'Every taste counts — light them all up!',
+    '🔥 Streak: 1 badge lit — keep going!',
+    '🔥🔥 Streak: 2 badges — you are on a roll!',
+    '🔥🔥🔥 Streak: 3 badges — over halfway!',
+    '🔥🔥🔥🔥 Streak: 4 badges — one more!',
+    '🏆 Perfect tasting — all five badges lit!'
+  ];
+
+  const CONFETTI_COLORS = [
+    'var(--gami-confetti-color-1)',
+    'var(--gami-confetti-color-2)',
+    'var(--gami-confetti-color-3)',
+    'var(--gami-confetti-color-4)',
+    'var(--gami-confetti-color-5)',
+    'var(--gami-confetti-color-6)'
+  ];
+
+  function gamiPrefersReducedMotion() {
+    return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function gamiBurstConfetti() {
+    const layer = document.getElementById('confetti-layer');
+    if (!layer) return;
+    if (gamiPrefersReducedMotion()) return;
+
+    const frag = document.createDocumentFragment();
+    const pieceCount = Math.min(34, 10 + gamiStreak * 5);
+    for (let i = 0; i < pieceCount; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = (Math.random() * 96 + 2) + 'vw';
+      p.style.top = -20 + 'px';
+      p.style.width = (6 + Math.random() * 6) + 'px';
+      p.style.height = (6 + Math.random() * 6) + 'px';
+      p.style.backgroundColor = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+      p.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+      p.style.animationDelay = (Math.random() * 0.25) + 's';
+      frag.appendChild(p);
+    }
+    layer.appendChild(frag);
+
+    setTimeout(function () {
+      layer.innerHTML = '';
+    }, 4200);
+  }
+
+  function gamiSetRingDom(pendingMsg) {
+    const ring = document.getElementById('gami-ring');
+    const countEl = document.getElementById('gami-ring-count');
+    const titleEl = document.getElementById('gami-title');
+    const msgEl = document.getElementById('gami-msg');
+
+    const pct = gamiTotal === 0 ? 0 : Math.round((gamiStreak / gamiTotal) * 100);
+    const clamp = Math.max(0, Math.min(100, pct));
+    if (ring) {
+      ring.style.setProperty('--gami-pct', String(clamp));
+      ring.setAttribute('aria-valuenow', String(gamiStreak));
+      ring.setAttribute('aria-label', 'Achievement ring showing ' + gamiStreak + ' of ' + gamiTotal + ' tastes');
+    }
+    if (countEl) countEl.textContent = String(gamiStreak);
+    if (titleEl && GAMI_TITLES[gamiStreak]) titleEl.textContent = GAMI_TITLES[gamiStreak];
+    if (msgEl && pendingMsg) msgEl.textContent = pendingMsg;
+  }
+
+  function gamiEarnBadge(moduleId) {
+    const station = GAMI_STATIONS[moduleId];
+    if (!station || gamiEarned[moduleId]) return;
+
+    gamiEarned[moduleId] = true;
+    gamiStreak = Math.min(gamiStreak + 1, gamiTotal);
+
+    const badge = document.querySelector('.achievement-badge[data-badge="' + moduleId + '"]');
+    if (badge) {
+      badge.classList.add('earned');
+      badge.setAttribute('aria-label', station.label + ' achievement badge: earned');
+      // restart the pop animation even on rapid re-triggers
+      badge.classList.remove('earned');
+      void badge.offsetWidth;
+      badge.classList.add('earned');
+    }
+
+    const dot = document.querySelector('.gami-dot[data-gami="' + moduleId + '"]');
+    if (dot) dot.classList.add('earned');
+
+    gamiBurstConfetti();
+    gamiSetRingDom(station.icon + ' <strong>' + station.label + '</strong> badge earned! ' + station.cheer);
+
+    const msgEl = document.getElementById('gami-msg');
+    setTimeout(function () {
+      if (msgEl && msgEl.textContent.indexOf('badge earned') !== -1) {
+        gamiSetRingDom('Every taste earns its own badge while this page is open. Try another station!');
+      }
+    }, 6000);
+  }
+
+  function gamiInit() {
+    const ring = document.getElementById('gami-ring');
+    if (ring) {
+      ring.setAttribute('role', 'progressbar');
+      ring.setAttribute('aria-valuemin', '0');
+      ring.setAttribute('aria-valuemax', String(gamiTotal));
+    }
+    gamiSetRingDom();
+  }
+  // --- 11. BULLETPROOF BOOTSTRAP ---
   function bootstrap() {
     try {
       initTheme();
@@ -1293,6 +1453,7 @@
       initSoftwareSimulator();
       initThunarSimulator();
       initTerminalSimulator();
+      gamiInit();
     } catch (err) {
       if (typeof console !== 'undefined' && console.error) {
         console.error('Error during Mint Guide initialization:', err);

@@ -74,6 +74,11 @@ This **Linux Mint XFCE Guide** is a tasting menu, not a course: five clickable s
 - Authentic Linux Mint styling using official Mint-Y green accents.
 - Seamless one-click dark/light toggle with automatic preference detection.
 
+### 8. 🏆 Playful Gameplay (Session-Only)
+- Light up five colorful achievement badges — one per taste station — as you hit each station's "goal" moment.
+- Watch the streak ring fill from 0 to 5 and catch a confetti burst on every badge.
+- Everything is in-memory only: it resets on reload, saves nothing, and never locks or gates a station.
+
 ---
 
 ## 🚀 Quick Start (Zero Installation)

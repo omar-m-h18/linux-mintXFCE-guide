@@ -241,7 +241,9 @@ $$\text{Type Selection} \longrightarrow \text{Target Drive} \longrightarrow \tex
   - Built-in `help` command catalogs all supported sandbox commands.
 
 ### 5.6 Taste Stations & Decide Section
-- **Station Structure**: Each of the five `article.module-card` blocks (`#module-1` … `#module-5`) contains one context paragraph (`.module-intro`), the interactive demo, and one takeaway (`.status-alert.success.taste-takeaway`). All stations are always interactive — no gating, no locks, no progress state.
+- **Station Structure**: Each of the five `article.module-card` blocks (`#module-1` … `#module-5`) contains one context paragraph (`.module-intro`), the interactive demo, and one takeaway (`.status-alert.success.taste-takeaway`). All stations are always interactive — no gating, no locks, no gating state.
+- **Gamification Layer (session-only, approved 2026)**: A cosmetic celebration suite — five `.achievement-badge` chips (`data-badge="module-1..5"`), a filling `.gami-ring` progress ring, a streak flame counter, and a fixed `#confetti-layer` burst. State lives entirely in module-level `let gamiStreak` / `const gamiEarned` (**never** `safeStorage`), resets on every page load, and never gates input. Badge triggers fire inside existing success paths: Timeshift restore, Whisker launch, Software install completion, Thunar file/folder open, first known terminal command. Confetti respects `prefers-reduced-motion`; the ring is exposed with `role="progressbar"` + `aria-valuenow`.
+- **Encouraging Copy**: Software Manager install/remove flows run a `.progress-cheer` message that tracks the simulated progress bar (e.g. "Unwrapping packages… → Done installing safely!").
 - **Decide Section**: A single closing card (`section#decide`) with download, installation-guide, and forum links. It is the only place the page asks the visitor to act in the real world.
 - **Removed Systems**: Knowledge-check quizzes, the readiness checklist/certificate, the `LEVELS` progression machine with lock overlays, the learning-path strip, level toasts, and the graduation modal were deleted from all three source files. Their identifiers (`QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `markProgress`, `updateProgressUI`, `initTranslator`) must not reappear; the verification matrix greps for them.
 
@@ -301,4 +303,5 @@ Any future modifications must pass this manual verification checklist:
 - [x] Confirm nav links and the hero CTA reach `#the-deal`, `#taste`, and `#decide`.
 - [x] Grep for `quiz-`, `check-`, `level-`, `completion-modal`, `updateProgressUI` and confirm zero hits in source.
 - [x] Confirm zero console warnings or exceptions.
+- [x] Trigger all five station badges and confirm the streak ring counts up to 5, confetti fires, and a fresh page reload resets the streak to 0.
 

@@ -133,6 +133,12 @@ Every interactive simulator is wrapped in an authentic XFCE-style desktop window
 - Points to trying the full system from a USB stick, the official download page, the installation guide, and the community forums.
 - This is the only place the page asks the visitor to do anything real — deliberately, after tasting.
 
+### 4.10 Gamification Layer (Cosmetic, Session-Only)
+- **Purpose**: A pinch of play — five lighting-up achievement badges, a filling progress ring, a streak counter, and a confetti burst — to reward each station's "goal" moment.
+- **Badge triggers**: Timeshift restore completes (`module-1`), Whisker app launches (`module-2`), Software Manager install finishes (`module-3`), Thunar opens a file/folder (`module-4`), first known terminal command runs (`module-5`).
+- **Rules**: Fully in-memory (`gamiStreak`, `gamiEarned`) — zero `safeStorage` keys, resets on every page load, never gates or disables stations, and badges re-pop on repeat triggers without re-incrementing the streak.
+- **Celebration**: `.confetti-layer` burst (`gamiBurstConfetti`) disabled under `prefers-reduced-motion`; ring progress exposed via `role="progressbar"` + `aria-valuenow`.
+
 ### 4.9 Removed Systems (Do Not Reintroduce Without Discussion)
 - Knowledge-check quizzes, readiness checklist/certificate, level progression with lock overlays, learning-path strip, level toasts, graduation modal, and the Windows-to-Mint translator were all removed: they turned a tasting menu into a course and hid content behind tests.
 - Their code (`QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `initQuizzes`, `initChecklistClicks`, `initLevelSystem`, `markProgress`, `updateProgressUI`, `initTranslator`) and styles were deleted from `js/app.js` and `css/style.css`.
@@ -148,7 +154,7 @@ All state keys are accessed via `safeStorage`:
 | `mint_theme` | String: `'dark'` \| `'light'` | Stores user's preferred visual theme |
 | `mint_installed_apps` | JSON Array: `["vlc", "libreoffice"]` | Persists custom installed apps in Software Manager |
 
-> **Note**: Nothing about visitor progress is stored — there are no quizzes, checklists, or levels. Only the theme preference and the Software Manager's installed-app list persist.
+> **Note**: Nothing about visitor progress is stored — there are no quizzes, checklists, or levels. Only the theme preference and the Software Manager's installed-app list persist. The cookie-free gamification layer (five in-session achievement badges + a streak ring) is purely cosmetic: it lives in memory only, resets on every page load, and never gates or records anything.
 
 ---
 

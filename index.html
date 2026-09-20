@@ -60,6 +60,30 @@
     </div>
   </section>
 
+  <!-- In-session tasting streak & badge tracker (never saved, resets on reload) -->
+  <section class="gami-strip" aria-label="Tasting streak tracker">
+    <div class="container gami-strip-inner">
+      <div class="gami-ring" id="gami-ring" style="--gami-pct: 0;" role="img" aria-label="Achievement ring showing 0 of 5 tastes">
+        <div class="gami-ring-inner">
+          <span class="gami-ring-count" id="gami-ring-count">0</span>
+          <span class="gami-ring-denom">/ 5</span>
+        </div>
+      </div>
+      <div class="gami-info">
+        <div class="gami-kicker">🔥 In-session tasting streak</div>
+        <div class="gami-title" id="gami-title" aria-live="polite">Every taste counts — light them all up!</div>
+        <div class="gami-msg" id="gami-msg">Break it, fix it, launch, install, and explore. Earn all five badges below — nothing is saved, it resets with this page.</div>
+      </div>
+      <div class="gami-dots" aria-label="Five achievement badges">
+        <span class="gami-dot" data-gami="module-1" title="Safety Net badge" aria-label="Safety Net badge">🛡️</span>
+        <span class="gami-dot" data-gami="module-2" title="Whisker Menu badge" aria-label="Whisker Menu badge">🚀</span>
+        <span class="gami-dot" data-gami="module-3" title="Software Manager badge" aria-label="Software Manager badge">📦</span>
+        <span class="gami-dot" data-gami="module-4" title="Thunar Files badge" aria-label="Thunar Files badge">📁</span>
+        <span class="gami-dot" data-gami="module-5" title="Terminal badge" aria-label="Terminal badge">💻</span>
+      </div>
+    </div>
+  </section>
+
   <!-- Taste stations -->
   <main class="container modules-wrapper" id="taste">
 
@@ -67,6 +91,9 @@
     <article class="module-card" id="module-1">
       <div class="module-badge-row">
         <span class="module-number">Taste 1 of 5</span>
+        <span class="achievement-badge" data-badge="module-1" role="img" aria-label="Safety Net achievement badge: locked">
+          <span class="achievement-badge-icon">🛡️</span>
+        </span>
       </div>
       <div class="module-header">
         <h3>First, the fear: what if I break something?</h3>
@@ -134,6 +161,9 @@
     <article class="module-card" id="module-2">
       <div class="module-badge-row">
         <span class="module-number">Taste 2 of 5</span>
+        <span class="achievement-badge" data-badge="module-2" role="img" aria-label="Whisker Menu achievement badge: locked">
+          <span class="achievement-badge-icon">🚀</span>
+        </span>
       </div>
       <div class="module-header">
         <h3>This is Mint's Start menu</h3>
@@ -218,6 +248,9 @@
     <article class="module-card" id="module-3">
       <div class="module-badge-row">
         <span class="module-number">Taste 3 of 5</span>
+        <span class="achievement-badge" data-badge="module-3" role="img" aria-label="Software Manager achievement badge: locked">
+          <span class="achievement-badge-icon">📦</span>
+        </span>
       </div>
       <div class="module-header">
         <h3>This is how you get new apps</h3>
@@ -272,6 +305,9 @@
     <article class="module-card" id="module-4">
       <div class="module-badge-row">
         <span class="module-number">Taste 4 of 5</span>
+        <span class="achievement-badge" data-badge="module-4" role="img" aria-label="Thunar Files achievement badge: locked">
+          <span class="achievement-badge-icon">📁</span>
+        </span>
       </div>
       <div class="module-header">
         <h3>This is where your files live</h3>
@@ -338,6 +374,9 @@
     <article class="module-card" id="module-5">
       <div class="module-badge-row">
         <span class="module-number">Taste 5 of 5</span>
+        <span class="achievement-badge" data-badge="module-5" role="img" aria-label="Terminal achievement badge: locked">
+          <span class="achievement-badge-icon">💻</span>
+        </span>
       </div>
       <div class="module-header">
         <h3>The famous black screen (optional, we promise)</h3>
@@ -446,6 +485,9 @@
       </div>
     </div>
   </footer>
+
+  <!-- Celebration confetti layer (injected with animated pieces on badge unlocks) -->
+  <div id="confetti-layer" class="confetti-layer" aria-hidden="true"></div>
 
   <script src="js/app.js"></script>
 </body>

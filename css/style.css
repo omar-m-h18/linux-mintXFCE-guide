@@ -41,6 +41,18 @@
   --danger-border: rgba(198, 40, 40, 0.3);
   --danger-wash: rgba(198, 40, 40, 0.2);
 
+  /* Gamification Tuning (playful, in-session only) */
+  --gami-streak: #f59e0b;
+  --gami-streak-soft: rgba(245, 158, 11, 0.16);
+  --gami-badge-glow: rgba(47, 133, 90, 0.28);
+  --gami-confetti-size: 12px;
+  --gami-confetti-color-1: #87cf3e;
+  --gami-confetti-color-2: #38bdf8;
+  --gami-confetti-color-3: #a78bfa;
+  --gami-confetti-color-4: #fb7185;
+  --gami-confetti-color-5: #f59e0b;
+  --gami-confetti-color-6: #fbbf24;
+
   /* XFCE Window Chrome */
   --titlebar-bg: #2d3748;
   --titlebar-text: #edf2f7;
@@ -102,6 +114,17 @@ body.dark {
   --mint-ring: rgba(72, 187, 120, 0.25);
   --danger-border: rgba(252, 165, 165, 0.35);
   --danger-wash: rgba(252, 165, 165, 0.15);
+
+  /* Gamification Tuning (playful, in-session only) */
+  --gami-streak: #fbbf24;
+  --gami-streak-soft: rgba(251, 191, 36, 0.18);
+  --gami-badge-glow: rgba(152, 222, 75, 0.35);
+  --gami-confetti-color-1: #98de4b;
+  --gami-confetti-color-2: #38bdf8;
+  --gami-confetti-color-3: #a78bfa;
+  --gami-confetti-color-4: #fb7185;
+  --gami-confetti-color-5: #fbbf24;
+  --gami-confetti-color-6: #f59e0b;
 
   --titlebar-bg: #161a22;
   --titlebar-text: #f1f5f9;
@@ -313,6 +336,43 @@ button {
   background: var(--badge-bg);
   padding: 0.25rem 0.65rem;
   border-radius: var(--radius-full);
+}
+
+/* Playful achievement badge chip shown in each module header */
+.achievement-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  opacity: 0.45;
+  filter: grayscale(1);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.achievement-badge .achievement-badge-icon {
+  line-height: 1;
+}
+
+.achievement-badge.earned {
+  opacity: 1;
+  filter: none;
+  background: var(--badge-bg);
+  border-color: var(--mint-primary);
+  box-shadow: 0 0 0 4px var(--mint-ring), 0 4px 14px var(--gami-badge-glow);
+  transform: scale(1.06);
+  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0.4) rotate(-12deg); }
+  55% { transform: scale(1.2) rotate(6deg); }
+  100% { transform: scale(1.06) rotate(0); }
 }
 
 .module-header h3 {
@@ -1502,6 +1562,201 @@ button {
 
 .decide-actions .sim-btn {
   text-decoration: none;
+}
+
+/* =========================================================
+   Playful Gamification Layer (in-session only, nothing saved)
+   ========================================================= */
+
+.gami-strip {
+  margin: 0.5rem auto 2.5rem;
+  max-width: 1120px;
+  padding: 0 1.25rem;
+}
+
+.gami-strip-inner {
+  background: linear-gradient(120deg, var(--mint-light) 0%, var(--bg-surface) 55%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.gami-ring {
+  --gami-pct: 0;
+  --gami-stop: calc(var(--gami-pct) * 1%);
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: conic-gradient(var(--mint-accent) 0deg var(--gami-stop), var(--border-color) var(--gami-stop) 360deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.4s ease;
+}
+
+.gami-ring-inner {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.gami-ring-count {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.gami-ring-denom {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+
+.gami-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.gami-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gami-streak);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.gami-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin: 0.2rem 0 0.2rem;
+  line-height: 1.3;
+}
+
+.gami-msg {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.gami-msg .gami-flame {
+  white-space: nowrap;
+}
+
+.gami-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.gami-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  opacity: 0.45;
+  filter: grayscale(1);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
+}
+
+.gami-dot.earned {
+  opacity: 1;
+  filter: none;
+  background: var(--badge-bg);
+  border-color: var(--mint-primary);
+  box-shadow: 0 0 0 3px var(--mint-ring);
+  transform: scale(1.1);
+  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (max-width: 640px) {
+  .gami-strip-inner {
+    justify-content: center;
+    text-align: center;
+  }
+  .gami-info {
+    min-width: 100%;
+  }
+  .gami-dots {
+    justify-content: center;
+  }
+}
+
+/* Celebration confetti layer */
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1200;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -24px;
+  width: var(--gami-confetti-size);
+  height: var(--gami-confetti-size);
+  border-radius: 3px;
+  opacity: 0.95;
+  animation: confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(0, 105vh, 0) rotate(720deg);
+    opacity: 0.15;
+  }
+}
+
+/* Encouraging microcopy on progress bars */
+.progress-cheer {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--mint-dark);
+  margin-top: 0.25rem;
+  min-height: 1em;
+  letter-spacing: 0.01em;
+}
+
+.progress-cheer.is-hidden {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-piece,
+  .gami-dot.earned,
+  .achievement-badge.earned {
+    animation: none;
+  }
 }
 
 /* iOS Safari auto-zooms text inputs under 16px on focus */
