@@ -235,8 +235,6 @@
         </div>
         <div class="xfce-body" style="padding: 0;">
           
-          <div id="whisker-feedback-toast" class="status-alert success" style="display: none; margin: 0.75rem;"></div>
-
           <!-- Whisker Menu Box -->
           <div class="whisker-container" id="whisker-window-body">
             <!-- Categories Sidebar -->
@@ -277,7 +275,7 @@
             </div>
             <div class="panel-right">
               <button type="button" class="panel-icon-btn" id="panel-btn-shield" title="Update Manager: Up to Date">🛡️</button>
-              <button type="button" class="panel-icon-btn" id="panel-btn-volume" title="Volume Control: 100%">🔊</button>
+              <button type="button" class="panel-icon-btn" id="panel-btn-volume" title="Volume Control: 80%">🔊</button>
               <button type="button" class="panel-icon-btn" id="panel-btn-wifi" title="Wi-Fi: Connected">📶</button>
               <button type="button" class="panel-icon-btn" id="panel-btn-clock" title="Date & Time Settings">10:24 AM</button>
             </div>
@@ -479,7 +477,7 @@
         </div>
 
         <div class="terminal-screen" id="terminal-screen">
-          <div style="color: #94a3b8; margin-bottom: 0.75rem;">
+          <div style="color: var(--titlebar-text); margin-bottom: 0.75rem;">
             Linux Mint 22 (XFCE Edition) - Welcome to the safe newcomer terminal playground.<br>
             Type any command below or simply click one of the quick suggestions. Zero danger!
           </div>
@@ -502,7 +500,7 @@
         </div>
 
         <div class="terminal-input-bar">
-          <span style="color: #4ade80; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600;">newcomer@mint-xfce:~$</span>
+          <span style="color: var(--mint-primary); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600;">newcomer@mint-xfce:~$</span>
           <input type="text" id="terminal-input" class="term-input" placeholder="Type a command (or click a suggestion above)..." aria-label="Simulated terminal input">
           <button type="button" id="term-run-btn" class="term-run-btn">▶ Run</button>
         </div>

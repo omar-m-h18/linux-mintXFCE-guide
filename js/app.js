@@ -241,6 +241,16 @@
   }
 
   // --- 4. XFCE WINDOW CHROME CONTROLS ---
+  function collapseWindow(win, closedBanner) {
+    win.classList.add('is-collapsed');
+    if (closedBanner) closedBanner.style.display = 'block';
+  }
+
+  function expandWindow(win, closedBanner) {
+    win.classList.remove('is-collapsed');
+    if (closedBanner) closedBanner.style.display = 'none';
+  }
+
   function initWindowControls() {
     const windows = document.querySelectorAll('.xfce-window, .terminal-window');
     windows.forEach(function (win) {
@@ -253,7 +263,11 @@
       if (minBtn) {
         minBtn.onclick = function (e) {
           e.preventDefault();
-          win.classList.toggle('is-collapsed');
+          if (win.classList.contains('is-collapsed')) {
+            expandWindow(win, closedBanner);
+          } else {
+            collapseWindow(win, closedBanner);
+          }
         };
       }
 
@@ -267,16 +281,14 @@
       if (closeBtn) {
         closeBtn.onclick = function (e) {
           e.preventDefault();
-          win.classList.add('is-collapsed');
-          if (closedBanner) closedBanner.style.display = 'block';
+          collapseWindow(win, closedBanner);
         };
       }
 
       if (reopenBtn) {
         reopenBtn.onclick = function (e) {
           e.preventDefault();
-          win.classList.remove('is-collapsed');
-          if (closedBanner) closedBanner.style.display = 'none';
+          expandWindow(win, closedBanner);
         };
       }
     });
@@ -293,6 +305,8 @@
 
     if (!btnSnapshot || !btnBreak || !btnRestore || !statusBox) return;
 
+    let broke = false;
+
     btnSnapshot.onclick = function () {
       btnSnapshot.disabled = true;
       btnSnapshot.innerHTML = '⏳ Creating Snapshot...';
@@ -303,14 +317,17 @@
         appState.timeshiftStep = 1;
         if (step1) step1.className = 'timeline-step active';
         if (step2) step2.className = 'timeline-step';
+        const timeEl = step1 ? step1.querySelector('.step-time') : null;
+        if (timeEl) timeEl.textContent = 'Clean Setup (Just Now)';
         statusBox.className = 'status-alert success';
-        statusBox.innerHTML = '🛡️ <strong>Safety Snapshot Saved:</strong> Clean snapshot captured. Your system files and settings are safely preserved!';
+        statusBox.innerHTML = '🛡️ <strong>Snapshot Saved:</strong> Snapshot #1\'s clean state is now your protected restore point. Go ahead — click "Simulate Bad Tweak" and break it on purpose!';
         btnSnapshot.disabled = false;
         btnSnapshot.innerHTML = '📸 Create Snapshot';
       }, 700);
     };
 
     btnBreak.onclick = function () {
+      broke = true;
       appState.timeshiftStep = 2;
       if (step1) step1.className = 'timeline-step';
       if (step2) step2.className = 'timeline-step compromised';
@@ -319,12 +336,19 @@
     };
 
     btnRestore.onclick = function () {
+      if (!broke) {
+        statusBox.className = 'status-alert info';
+        statusBox.innerHTML = 'ℹ️ <strong>Nothing to restore yet:</strong> your system is still pristine. Click "Simulate Bad Tweak" first — that is the whole point of this station — then come back here to roll it back.';
+        return;
+      }
+
       btnRestore.disabled = true;
       btnRestore.innerHTML = '⏳ Restoring System...';
       statusBox.className = 'status-alert info';
       statusBox.innerHTML = '↺ <strong>Timeshift Rollback:</strong> Replacing altered system files with pristine snapshot...';
 
       setTimeout(function () {
+        broke = false;
         appState.timeshiftStep = 1;
         if (step1) step1.className = 'timeline-step active';
         if (step2) step2.className = 'timeline-step';
@@ -360,7 +384,6 @@
     const appsList = document.getElementById('whisker-apps-container');
     const triggerBtn = document.getElementById('whisker-menu-trigger');
     const whiskerWindow = document.getElementById('whisker-window-body');
-    const feedbackToast = document.getElementById('whisker-feedback-toast');
 
     let currentCat = 'all';
 
@@ -416,14 +439,6 @@
           const appName = item.getAttribute('data-app');
           const appIcon = item.getAttribute('data-icon') || '🚀';
           const appDesc = item.getAttribute('data-desc') || '';
-
-          if (feedbackToast) {
-            feedbackToast.style.display = 'flex';
-            feedbackToast.innerHTML = '🚀 <strong>Launched:</strong> "' + appName + '" opened on your desktop!';
-            setTimeout(function () {
-              feedbackToast.style.display = 'none';
-            }, 3000);
-          }
 
           openMockModal(
             appName,
@@ -730,12 +745,12 @@
         if (isInstalled) {
           actionBtnHtml =
             '<div class="soft-action-group">' +
-            '  <button type="button" class="sim-btn btn-open-app" data-id="' + item.id + '" data-name="' + item.name + '" data-icon="' + item.icon + '" data-desc="' + item.desc + '">✓ Open</button>' +
+            '  <button type="button" class="sim-btn btn-open-app" data-id="' + item.id + '" data-name="' + item.name + '" data-icon="' + item.icon + '" data-desc="' + item.desc + '" data-type="' + item.type + '">✓ Open</button>' +
             '  <button type="button" class="btn-remove-app" data-id="' + item.id + '" data-name="' + item.name + '" title="Uninstall application">🗑️ Remove</button>' +
             '</div>';
         } else {
           actionBtnHtml =
-            '<button type="button" class="sim-btn sim-btn-primary btn-install-app" data-id="' + item.id + '" data-name="' + item.name + '" data-icon="' + item.icon + '" data-desc="' + item.desc + '">' +
+            '<button type="button" class="sim-btn sim-btn-primary btn-install-app" data-id="' + item.id + '" data-name="' + item.name + '" data-icon="' + item.icon + '" data-desc="' + item.desc + '" data-type="' + item.type + '">' +
             '  📥 Install (1-Click)' +
             '</button>';
         }
@@ -754,10 +769,10 @@
           '    <div class="install-progress-fill" id="fill-' + item.id + '"></div>' +
           '  </div>' +
           '  <div class="progress-cheer is-hidden" id="cheer-' + item.id + '"></div>' +
-          '  <div class="soft-bottom">' +
-          '    <span class="soft-size">' + item.size + ' • Verified Mint Safe</span>' +
-          '    ' + actionBtnHtml +
-          '  </div>' +
+'  <div class="soft-bottom">' +
+            '    <span class="soft-size">' + item.size + (item.type === 'Flatpak' ? ' • Flathub Verified' : ' • Verified Mint Safe') + '</span>' +
+            '    ' + actionBtnHtml +
+            '  </div>' +
           '</div>'
         );
       }).join('');
@@ -813,19 +828,18 @@
                cheerEl.className = cheerEl.className.replace(/is-\w+/g, '');
                cheerEl.classList.add(progress < 100 ? 'is-happy' : 'is-celebrate');
              }
-             if (progress >= 100) {
-               clearInterval(timer);
-               appState.installedApps.add(appName);
-               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
-               if (cheerEl) {
-                 cheerEl.textContent = 'Installed with zero sketchy downloads.';
-                 cheerEl.className = cheerEl.className.replace(/is-\w+/g, '');
-                 cheerEl.classList.add('is-celebrate');
-                 setTimeout(function () { cheerEl.classList.add('is-hidden'); }, 2000);
-               }
-               gamiEarnBadge('module-3');
-               renderSoftware();
-             }
+if (progress >= 100) {
+                clearInterval(timer);
+                appState.installedApps.add(appName);
+                safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
+                if (cheerEl) {
+                  cheerEl.textContent = 'Installed with zero sketchy downloads.';
+                  cheerEl.className = cheerEl.className.replace(/is-\w+/g, '');
+                  cheerEl.classList.add('is-celebrate');
+                }
+                gamiEarnBadge('module-3');
+                setTimeout(renderSoftware, 1400);
+              }
            }, 90);
          } else {
           appState.installedApps.add(appName);
@@ -842,6 +856,10 @@
         const appName = openBtn.getAttribute('data-name');
         const appIcon = openBtn.getAttribute('data-icon') || '📦';
         const appDesc = openBtn.getAttribute('data-desc') || '';
+        const appType = openBtn.getAttribute('data-type') || 'System Package';
+        const repoLine = appType === 'Flatpak'
+          ? '    ✓ Installed securely as a Flatpak from Flathub — a curated, trusted app store.'
+          : '    ✓ Installed securely from the official Linux Mint software repository.';
 
         openMockModal(
           appName,
@@ -851,7 +869,7 @@
           '  <h4 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">' + appName + '</h4>' +
           '  <p style="color: var(--text-secondary); margin-bottom: 1.25rem;">' + appDesc + '</p>' +
           '  <div class="status-alert success" style="text-align: left; margin-bottom: 1rem;">' +
-          '    ✓ Installed securely from the official Linux Mint software repository.' +
+          repoLine +
           '  </div>' +
           '  <button type="button" class="sim-btn sim-btn-primary modal-dismiss-btn">Close App</button>' +
           '</div>'
@@ -888,10 +906,7 @@
               clearInterval(timer);
               appState.installedApps.delete(appName);
               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
-              if (rCheerEl) {
-                setTimeout(function () { rCheerEl.classList.add('is-hidden'); }, 2000);
-              }
-              renderSoftware();
+              setTimeout(renderSoftware, 1000);
             }
           }, 80);
         } else {
@@ -1038,6 +1053,19 @@
       renderBreadcrumbs(validPath);
 
       const dirData = THUNAR_DIRS[validPath];
+      if (!dirData.items || dirData.items.length === 0) {
+        fileGrid.innerHTML = '<div class="empty-state"><span class="empty-state-icon">📂</span>This folder is empty.</div>';
+        if (sidebar) {
+          sidebar.querySelectorAll('.thunar-side-item').forEach(function (el) {
+            if (el.getAttribute('data-path') === validPath) {
+              el.classList.add('active');
+            } else {
+              el.classList.remove('active');
+            }
+          });
+        }
+        return;
+      }
       fileGrid.innerHTML = dirData.items.map(function (item) {
         return (
           '<div class="thunar-file-item" data-name="' + item.name + '" data-type="' + item.type + '" data-desc="' + (item.desc || '') + '" data-icon="' + item.icon + '">' +
@@ -1135,59 +1163,59 @@
   const COMMANDS = {
     'neofetch': {
       output: [
-        '<span style="color: #4ade80;">             ...-:::::-...             </span><span style="color: #f1f5f9;">user@mint-xfce</span>',
-        '<span style="color: #4ade80;">          .-MMMMMMMMMMMMMMM-.          </span><span style="color: #94a3b8;">-------------</span>',
-        '<span style="color: #4ade80;">      .-MMMM&#96;..-:::::::-..&#96;MMMM-.      </span><span style="color: #60a5fa;">OS</span>: Linux Mint 22 Wilma x86_64',
-        '<span style="color: #4ade80;">    .:MMMM.:MMMMMMMMMMMMMMM:.MMMM:.    </span><span style="color: #60a5fa;">Host</span>: PC Desktop / Laptop',
-        '<span style="color: #4ade80;">   -MMM-M---MMMMMMMMMMMMMMMMMMM.MMM-   </span><span style="color: #60a5fa;">Kernel</span>: 6.8.0-generic',
-        '<span style="color: #4ade80;">  :MMM:MM&#96;  :MMMM:....   .MMMM: :MMM:  </span><span style="color: #60a5fa;">Uptime</span>: 2 hours, 14 mins',
-        '<span style="color: #4ade80;"> :MMM.MM&#96;   :MM:          MMMM:  .MMM: </span><span style="color: #60a5fa;">Packages</span>: 2140 (dpkg), 12 (flatpak)',
-        '<span style="color: #4ade80;"> :MMM.MM&#96;   :MM:          MMMM:  .MMM: </span><span style="color: #60a5fa;">Shell</span>: bash 5.2.21',
-        '<span style="color: #4ade80;">  :MMM:MM&#96;  :MMMM:....   .MMMM: :MMM:  </span><span style="color: #60a5fa;">DE</span>: Xfce 4.18',
-        '<span style="color: #4ade80;">   -MMM-M---MMMMMMMMMMMMMMMMMMM.MMM-   </span><span style="color: #60a5fa;">WM</span>: Xfwm4 (Mint-Y Theme)',
-        '<span style="color: #4ade80;">    .:MMMM.:MMMMMMMMMMMMMMM:.MMMM:.    </span><span style="color: #60a5fa;">Memory</span>: 2150MiB / 8000MiB (26%)',
-        '<span style="color: #4ade80;">      .-MMMM&#96;..-:::::::-..&#96;MMMM-.      </span>',
-        '<span style="color: #4ade80;">          .-MMMMMMMMMMMMMMM-.          </span>',
-        '<span style="color: #4ade80;">             ...-:::::-...             </span>',
-        '<br><span style="color: #94a3b8;">💡 Plain English: neofetch displays your system summary, memory usage, and desktop info. Harmless and fun!</span>'
+        '<span style="color: var(--mint-primary);">             ...-:::::-...             </span><span style="color: var(--terminal-text);">user@mint-xfce</span>',
+        '<span style="color: var(--mint-primary);">          .-MMMMMMMMMMMMMMM-.          </span><span style="color: var(--text-muted);">-------------</span>',
+        '<span style="color: var(--mint-primary);">      .-MMMM&#96;..-:::::::-..&#96;MMMM-.      </span><span style="color: var(--info-text);">OS</span>: Linux Mint 22 Wilma x86_64',
+        '<span style="color: var(--mint-primary);">    .:MMMM.:MMMMMMMMMMMMMMM:.MMMM:.    </span><span style="color: var(--info-text);">Host</span>: PC Desktop / Laptop',
+        '<span style="color: var(--mint-primary);">   -MMM-M---MMMMMMMMMMMMMMMMMMM.MMM-   </span><span style="color: var(--info-text);">Kernel</span>: 6.8.0-generic',
+        '<span style="color: var(--mint-primary);">  :MMM:MM&#96;  :MMMM:....   .MMMM: :MMM:  </span><span style="color: var(--info-text);">Uptime</span>: 2 hours, 14 mins',
+        '<span style="color: var(--mint-primary);"> :MMM.MM&#96;   :MM:          MMMM:  .MMM: </span><span style="color: var(--info-text);">Packages</span>: 2140 (dpkg), 12 (flatpak)',
+        '<span style="color: var(--mint-primary);"> :MMM.MM&#96;   :MM:          MMMM:  .MMM: </span><span style="color: var(--info-text);">Shell</span>: bash 5.2.21',
+        '<span style="color: var(--mint-primary);">  :MMM:MM&#96;  :MMMM:....   .MMMM: :MMM:  </span><span style="color: var(--info-text);">DE</span>: Xfce 4.18',
+        '<span style="color: var(--mint-primary);">   -MMM-M---MMMMMMMMMMMMMMMMMMM.MMM-   </span><span style="color: var(--info-text);">WM</span>: Xfwm4 (Mint-Y Theme)',
+        '<span style="color: var(--mint-primary);">    .:MMMM.:MMMMMMMMMMMMMMM:.MMMM:.    </span><span style="color: var(--info-text);">Memory</span>: 2150MiB / 8000MiB (26%)',
+        '<span style="color: var(--mint-primary);">      .-MMMM&#96;..-:::::::-..&#96;MMMM-.      </span>',
+        '<span style="color: var(--mint-primary);">          .-MMMMMMMMMMMMMMM-.          </span>',
+        '<span style="color: var(--mint-primary);">             ...-:::::-...             </span>',
+        '<br><span style="color: var(--text-muted);">💡 Plain English: neofetch displays your system summary, memory usage, and desktop info. Harmless and fun!</span>'
       ].join('<br>')
     },
     'pwd': {
-      output: '/home/newcomer<br><span style="color: #94a3b8;">💡 Plain English: "pwd" stands for "Print Working Directory". It tells you which folder you are currently sitting inside!</span>'
+      output: '/home/newcomer<br><span style="color: var(--text-muted);">💡 Plain English: "pwd" stands for "Print Working Directory". It tells you which folder you are currently sitting inside!</span>'
     },
     'ls': {
-      output: '<span style="color: #60a5fa; font-weight: 700;">Desktop   Documents   Downloads   Pictures   Videos</span>   welcome_notes.txt<br><span style="color: #94a3b8;">💡 Plain English: "ls" stands for "List". It simply shows all files and folders in your current location, identical to opening Thunar!</span>'
+      output: '<span style="color: var(--info-text); font-weight: 700;">Desktop   Documents   Downloads   Pictures   Videos</span>   welcome_notes.txt<br><span style="color: var(--text-muted);">💡 Plain English: "ls" stands for "List". It simply shows all files and folders in your current location, identical to opening Thunar!</span>'
     },
     'dir': {
-      output: '<span style="color: #60a5fa; font-weight: 700;">Desktop   Documents   Downloads   Pictures   Videos</span>   welcome_notes.txt<br><span style="color: #94a3b8;">💡 Plain English: Coming from Windows? \'dir\' works in Linux too! (Though most Linux users prefer typing \'ls\').</span>'
+      output: '<span style="color: var(--info-text); font-weight: 700;">Desktop   Documents   Downloads   Pictures   Videos</span>   welcome_notes.txt<br><span style="color: var(--text-muted);">💡 Plain English: Coming from Windows? \'dir\' works in Linux too! (Though most Linux users prefer typing \'ls\').</span>'
     },
     'free -h': {
       output: [
         '               total        used        free      shared  buff/cache   available',
         'Mem:           7.8Gi       2.1Gi       3.9Gi       120Mi       1.8Gi       5.4Gi',
         'Swap:          2.0Gi          0B       2.0Gi',
-        '<br><span style="color: #94a3b8;">💡 Plain English: "free -h" prints your RAM memory usage in human-readable units (Gigabytes). Linux Mint XFCE uses only ~2GB, leaving plenty of speed for your programs!</span>'
+        '<br><span style="color: var(--text-muted);">💡 Plain English: "free -h" prints your RAM memory usage in human-readable units (Gigabytes). Linux Mint XFCE uses only ~2GB, leaving plenty of speed for your programs!</span>'
       ].join('<br>')
     },
     'cat welcome_notes.txt': {
       output: [
-        '<span style="color: #86efac; font-weight: 600;">Welcome to Linux Mint XFCE!</span>',
+        '<span style="color: var(--terminal-text); font-weight: 600;">Welcome to Linux Mint XFCE!</span>',
         '• No drive letters (C: or D:). All personal files reside in /home/newcomer.',
         '• Software is installed safely from the Software Manager.',
         '• Timeshift automatically keeps snapshots so your computer is always safe.',
-        '<br><span style="color: #94a3b8;">💡 Plain English: "cat" displays the contents of a text file right on screen without opening an editor window.</span>'
+'<br><span style="color: var(--text-muted);">💡 Plain English: "cat" displays the contents of a text file right on screen without opening an editor window.</span>'
       ].join('<br>')
     },
     'cat': {
-      output: 'Usage: cat [filename]<br><span style="color: #94a3b8;">💡 Plain English: Try typing <strong>cat welcome_notes.txt</strong> to view the file\'s contents!</span>'
+      output: 'Usage: cat [filename]<br><span style="color: var(--text-muted);">💡 Plain English: Try typing <strong>cat welcome_notes.txt</strong> to view the file\'s contents!</span>'
     },
     'type welcome_notes.txt': {
       output: [
-        '<span style="color: #86efac; font-weight: 600;">Welcome to Linux Mint XFCE!</span>',
+        '<span style="color: var(--terminal-text); font-weight: 600;">Welcome to Linux Mint XFCE!</span>',
         '• No drive letters (C: or D:). All personal files reside in /home/newcomer.',
         '• Software is installed safely from the Software Manager.',
         '• Timeshift automatically keeps snapshots so your computer is always safe.',
-        '<br><span style="color: #94a3b8;">💡 Plain English: Windows alias recognized! In Windows CMD you type \'type file.txt\', but in Linux the equivalent is \'cat file.txt\'.</span>'
+        '<br><span style="color: var(--text-muted);">💡 Plain English: Windows alias recognized! In Windows CMD you type \'type file.txt\', but in Linux the equivalent is \'cat file.txt\'.</span>'
       ].join('<br>')
     },
     'sudo apt update': {
@@ -1199,22 +1227,22 @@
         'Building dependency tree... Done',
         'Reading state information... Done',
         'All packages are up to date.',
-        '<br><span style="color: #4ade80;">✓ All software repositories checked safely.</span>',
-        '<span style="color: #94a3b8;">💡 Plain English: "sudo" means "Run as Administrator". "apt update" checks the official Mint catalog for new security patches. You can do this exact same check with 1-click in the graphical Update Manager!</span>'
+        '<br><span style="color: var(--mint-primary);">✓ All software repositories checked safely.</span>',
+        '<br><span style="color: var(--text-muted);">💡 Plain English: "sudo" means "Run as Administrator". "apt update" checks the official Mint catalog for new security patches. You can do this exact same check with 1-click in the graphical Update Manager!</span>'
       ].join('<br>')
     },
     'uname -a': {
-      output: 'Linux mint-xfce 6.8.0-31-generic #31-Ubuntu SMP PREEMPT_DYNAMIC x86_64 GNU/Linux<br><span style="color: #94a3b8;">💡 Plain English: Prints the exact version number of the Linux kernel running on your computer.</span>'
+      output: 'Linux mint-xfce 6.8.0-31-generic #31-Ubuntu SMP PREEMPT_DYNAMIC x86_64 GNU/Linux<br><span style="color: var(--text-muted);">💡 Plain English: Prints the exact version number of the Linux kernel running on your computer.</span>'
     },
     'whoami': {
-      output: 'newcomer<br><span style="color: #94a3b8;">💡 Plain English: Prints the current logged-in username. You are logged in as "newcomer"!</span>'
+      output: 'newcomer<br><span style="color: var(--text-muted);">💡 Plain English: Prints the current logged-in username. You are logged in as "newcomer"!</span>'
     },
     'date': {
-      output: new Date().toString() + '<br><span style="color: #94a3b8;">💡 Plain English: Prints the system calendar date and time.</span>'
+      output: new Date().toString() + '<br><span style="color: var(--text-muted);">💡 Plain English: Prints the system calendar date and time.</span>'
     },
     'help': {
       output: [
-        '<span style="color: #60a5fa; font-weight: 700;">Available beginner commands in this simulator:</span>',
+        '<span style="color: var(--info-text); font-weight: 700;">Available beginner commands in this simulator:</span>',
         '• <strong>neofetch</strong> - Displays friendly system specifications and Mint ASCII logo',
         '• <strong>ls</strong> (or <strong>dir</strong>) - Lists files in current folder',
         '• <strong>pwd</strong> - Shows current folder path',
@@ -1228,16 +1256,16 @@
       ].join('<br>')
     },
     'ip a': {
-      output: '1: lo: &lt;LOOPBACK,UP&gt; mtu 65536<br>2: wlan0: &lt;BROADCAST,MULTICAST,UP&gt; inet 192.168.1.104/24<br><span style="color: #94a3b8;">💡 Plain English: Displays your Wi-Fi/Ethernet network IP addresses.</span>'
+      output: '1: lo: &lt;LOOPBACK,UP&gt; mtu 65536<br>2: wlan0: &lt;BROADCAST,MULTICAST,UP&gt; inet 192.168.1.104/24<br><span style="color: var(--text-muted);">💡 Plain English: Displays your Wi-Fi/Ethernet network IP addresses.</span>'
     },
     'ipconfig': {
-      output: 'Windows command recognized! In Linux, network info is checked with <strong>ip a</strong>:<br>wlan0: inet 192.168.1.104/24<br><span style="color: #94a3b8;">💡 Plain English: "ipconfig" in Windows translates to "ip a" in Linux.</span>'
+      output: 'Windows command recognized! In Linux, network info is checked with <strong>ip a</strong>:<br>wlan0: inet 192.168.1.104/24<br><span style="color: var(--text-muted);">💡 Plain English: "ipconfig" in Windows translates to "ip a" in Linux.</span>'
     },
     'systeminfo': {
-      output: 'Windows command recognized! In Linux, system info is usually viewed with <strong>neofetch</strong> or <strong>uname -a</strong>.<br><span style="color: #94a3b8;">💡 Try clicking "neofetch" above!</span>'
+      output: 'Windows command recognized! In Linux, system info is usually viewed with <strong>neofetch</strong> or <strong>uname -a</strong>.<br><span style="color: var(--text-muted);">💡 Try clicking "neofetch" above!</span>'
     },
     'cd': {
-      output: 'In Linux, "cd" changes folder, e.g. "cd Documents". In this simulator you can navigate visually in Thunar or use the quick buttons!<br><span style="color: #94a3b8;">💡 Plain English: "cd" stands for "Change Directory".</span>'
+      output: 'In Linux, "cd" changes folder, e.g. "cd Documents". In this simulator you can navigate visually in Thunar or use the quick buttons!<br><span style="color: var(--text-muted);">💡 Plain English: "cd" stands for "Change Directory".</span>'
     },
     'clear': {
       clear: true
@@ -1263,7 +1291,7 @@
 
       if (lower === 'clear' || lower === 'cls') {
         screen.innerHTML =
-          '<div style="color: #94a3b8; margin-bottom: 0.75rem;">' +
+          '<div style="color: var(--titlebar-text); margin-bottom: 0.75rem;">' +
           '  Linux Mint 22 (XFCE Edition) - Welcome to the safe newcomer terminal playground.<br>' +
           '  Type any command below or click one of the quick suggestions. Zero danger!' +
           '</div>';
@@ -1275,8 +1303,8 @@
       cmdBlock.style.marginTop = '0.5rem';
       cmdBlock.innerHTML =
         '<div style="display: flex; gap: 0.4rem;">' +
-        '  <span style="color: #4ade80; font-weight: 600;">newcomer@mint-xfce:~$</span>' +
-        '  <span style="color: #f1f5f9;">' + escapeHtml(clean) + '</span>' +
+        '  <span style="color: var(--mint-primary); font-weight: 600;">newcomer@mint-xfce:~$</span>' +
+        '  <span style="color: var(--terminal-text);">' + escapeHtml(clean) + '</span>' +
         '</div>';
       screen.appendChild(cmdBlock);
 
@@ -1293,8 +1321,8 @@
         }
       } else {
         outBlock.innerHTML =
-          '<span style="color: #fca5a5;">Command \'' + escapeHtml(clean) + '\' not recognized in this beginner demo.</span><br>' +
-          '<span style="color: #94a3b8;">Try typing <strong>help</strong> or clicking one of the safe preset buttons below!</span>';
+          '<span style="color: var(--danger-text);">Command \'' + escapeHtml(clean) + '\' not recognized in this beginner demo.</span><br>' +
+          '<span style="color: var(--text-muted);">Try typing <strong>help</strong> or clicking one of the safe preset buttons below!</span>';
       }
 
       screen.appendChild(outBlock);
@@ -1302,7 +1330,18 @@
     }
 
     function submitInput() {
-      runCommand(input.value);
+      const value = input.value;
+      if (!value.trim()) {
+        const hint = document.createElement('div');
+        hint.style.color = 'var(--text-muted)';
+        hint.style.fontSize = '0.8rem';
+        hint.style.margin = '0.35rem 0 0.85rem 0';
+        hint.textContent = 'Type a command to run it — try "neofetch" or click one of the suggested commands above.';
+        screen.appendChild(hint);
+        screen.scrollTop = screen.scrollHeight;
+        return;
+      }
+      runCommand(value);
       input.value = '';
     }
 
@@ -1534,7 +1573,7 @@
       why: 'No C:, no D: — just clear places for your documents, pictures, and downloads.',
       help: 'In the Files taste, open a folder, then open any file inside it.',
       steps: [
-        { selector: '#thunar-files', hint: 'Double-click a folder such as Documents or Downloads.' },
+        { selector: '#thunar-files', hint: 'Click a folder such as Documents or Downloads to step inside it.' },
         { selector: '.thunar-file-item', hint: 'Click a file to open and read it.' }
       ]
     },
