@@ -65,6 +65,13 @@
   --badge-m5: #e11d48;
   --badge-m5-soft: rgba(225, 29, 72, 0.14);
 
+  /* Guided Focus Mode (CS50-style playful academic) */
+  --academic-accent: #a51c30;
+  --academic-accent-soft: rgba(165, 28, 48, 0.12);
+  --academic-accent-text: #7d1424;
+  --academic-ring: rgba(165, 28, 48, 0.18);
+  --academic-glow: rgba(165, 28, 48, 0.3);
+
   /* XFCE Window Chrome */
   --titlebar-bg: #2d3748;
   --titlebar-text: #edf2f7;
@@ -149,6 +156,13 @@ body.dark {
   --badge-m4-soft: rgba(96, 165, 250, 0.16);
   --badge-m5: #fb7185;
   --badge-m5-soft: rgba(251, 113, 133, 0.16);
+
+  /* Guided Focus Mode (CS50-style playful academic) */
+  --academic-accent: #ef7c88;
+  --academic-accent-soft: rgba(239, 124, 136, 0.16);
+  --academic-accent-text: #fbd0d5;
+  --academic-ring: rgba(239, 124, 136, 0.22);
+  --academic-glow: rgba(239, 124, 136, 0.4);
 
   --titlebar-bg: #161a22;
   --titlebar-text: #f1f5f9;
@@ -270,7 +284,8 @@ button {
   gap: 0.75rem;
 }
 
-.theme-toggle-btn {
+.theme-toggle-btn,
+.guide-toggle-btn {
   background: var(--bg-tertiary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
@@ -285,12 +300,14 @@ button {
   user-select: none;
 }
 
-.theme-toggle-btn:hover {
+.theme-toggle-btn:hover,
+.guide-toggle-btn:hover {
   background: var(--border-color);
   transform: translateY(-1px);
 }
 
-.theme-toggle-btn:active {
+.theme-toggle-btn:active,
+.guide-toggle-btn:active {
   transform: translateY(0);
 }
 
@@ -1810,5 +1827,409 @@ button {
   .whisker-search-input,
   .term-input {
     font-size: 16px;
+  }
+}
+
+/* =========================================================
+   Guided Focus Mode (CS50-style playful academic)
+   A lens, not a lock: stations stay interactive at all times.
+   Session-only state, nothing saved, never gated.
+   ========================================================= */
+
+[hidden] {
+  display: none !important;
+}
+
+/* Stage Track below the streak strip */
+.stage-track {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-top: 0.75rem;
+  padding: 1rem 1.25rem;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.stage-track-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stage-track-title {
+  flex: 1;
+  min-width: 220px;
+}
+
+.stage-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--academic-accent);
+}
+
+.stage-goal-line {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.stage-complete {
+  font-size: 0.85rem;
+  color: var(--mint-dark);
+  background: var(--mint-light);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  min-height: 1em;
+}
+
+.stage-track-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stage-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.stage-chip {
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.stage-chip:hover {
+  border-color: var(--academic-accent);
+  color: var(--academic-accent-text);
+}
+
+.stage-chip.is-active {
+  border-color: var(--academic-accent);
+  background: var(--academic-accent-soft);
+  color: var(--academic-accent-text);
+  box-shadow: 0 0 0 3px var(--academic-ring);
+}
+
+.stage-chip.is-done {
+  border-color: var(--mint-primary);
+  background: var(--mint-light);
+  color: var(--mint-dark);
+}
+
+/* Stage goal cards inside each taste station */
+.stage-goal {
+  border-left: 3px solid var(--academic-accent);
+  background: var(--academic-accent-soft);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.4rem;
+  transition: opacity 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stage-goal-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--academic-accent);
+  margin-bottom: 0.3rem;
+}
+
+.stage-goal-statement {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.goal-steps {
+  margin: 0.4rem 0 0 1.15rem;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.goal-steps li {
+  margin-bottom: 0.2rem;
+}
+
+.stage-goal-why {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-top: 0.45rem;
+}
+
+/* Guide drawer (right-hand panel) */
+.guide-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  border: 0;
+  cursor: default;
+  z-index: 950;
+}
+
+.guide-drawer-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(360px, 92vw);
+  background: var(--bg-card);
+  border-left: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  padding: 1rem 1.1rem;
+  z-index: 960;
+  overflow-y: auto;
+}
+
+.guide-drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.guide-drawer-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--academic-accent);
+}
+
+.guide-drawer-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.guide-drawer-body h4 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--academic-accent);
+  margin: 0.9rem 0 0.25rem;
+}
+
+.guide-drawer-body p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.side-close-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+}
+
+.side-close-btn:hover {
+  background: var(--border-color);
+}
+
+/* Close button sits inside the bubble body, full width */
+.coach-bubble > .side-close-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.6rem;
+}
+
+body.guide-drawer-open {
+  overflow: hidden;
+}
+
+/* Coach spotlight layer */
+.coach-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 980;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.coach-layer.is-hidden .coach-bubble,
+.coach-layer.is-hidden .coach-hole {
+  opacity: 0;
+}
+
+.coach-hole {
+  position: absolute;
+  background: transparent;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+
+.coach-bubble {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(12px, 4vh, 28px);
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 24px));
+  background: var(--bg-card);
+  border: 1px solid var(--academic-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1rem 1.1rem;
+  pointer-events: auto;
+  z-index: 990;
+  animation: coachPop 0.18s ease;
+}
+
+@keyframes coachPop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.coach-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--academic-accent);
+}
+
+.coach-bubble-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0.15rem 0 0.35rem;
+}
+
+.coach-bubble-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.coach-bubble-steps {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.coach-step {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.coach-step > span:first-child {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.coach-step.is-current > span:first-child {
+  background: var(--academic-accent);
+  border-color: var(--academic-accent);
+  color: #ffffff;
+}
+
+.coach-step.is-done {
+  opacity: 0.6;
+}
+
+.coach-step.is-done > span:first-child {
+  background: var(--mint-primary);
+  border-color: var(--mint-primary);
+  color: #ffffff;
+}
+
+.coach-bubble-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* Focus mode: dim non-current content (visually only, never disabled) */
+body.guide-focus .module-card:not(.is-guide-current),
+body.guide-focus .gami-strip,
+body.guide-focus .deal-section,
+body.guide-focus .decide-section {
+  opacity: 0.45;
+  filter: saturate(0.55);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+body.guide-focus .module-card.is-guide-current {
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 0 0 3px var(--academic-ring), var(--shadow-md);
+}
+
+/* Keeps sticky nav from covering target elements during smooth scroll */
+.module-card {
+  scroll-margin-top: 84px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-layer,
+  .coach-hole,
+  .coach-bubble,
+  .stage-goal,
+  .stage-chip {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .stage-track-head {
+    flex-direction: column;
+  }
+  .stage-track-actions {
+    width: 100%;
+  }
+  .stage-track-actions .sim-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .coach-bubble-actions {
+    flex-wrap: wrap;
   }
 }

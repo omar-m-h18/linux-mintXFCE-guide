@@ -81,7 +81,7 @@ Every interactive simulator is wrapped in an authentic XFCE-style desktop window
 ## 4. Subsystems & Module Breakdown
 
 ### 4.1 Header, Hero & The Deal
-- **Header**: Sticky navigation with brand badge, anchor links (The deal · Taste · Decide), and the theme switcher. No progress widget — nothing is tracked.
+- **Header**: Sticky navigation with brand badge, anchor links (The deal · Taste · Decide), a theme switcher, and a **📖 Guide** drawer toggle. No progress widget — nothing is tracked.
 - **Theme Switcher**: Dual-mode button (`☀️ Light Mode` / `🌙 Dark Mode`) with automatic system preference detection (`prefers-color-scheme`) and persistent storage via `safeStorage`.
 - **Hero Banner**: Three elements only — headline (*"Never tried Linux? Taste it here first."*), one subline, one `[ Start tasting ]` call-to-action.
 - **The Deal (`#the-deal`)**: ~40 words plus four plain truths (no install, no risk, five minutes, then decide). The core message is delivered once, up front. There is no vocabulary/translator section anywhere on the page.
@@ -139,6 +139,15 @@ Every interactive simulator is wrapped in an authentic XFCE-style desktop window
 - **Rules**: Fully in-memory (`gamiStreak`, `gamiEarned`) — zero `safeStorage` keys, resets on every page load, never gates or disables stations, and badges re-pop on repeat triggers without re-incrementing the streak.
 - **Celebration**: `.confetti-layer` burst (`gamiBurstConfetti`) disabled under `prefers-reduced-motion`; ring progress exposed via `role="progressbar"` + `aria-valuenow`.
 
+### 4.11 Guided Focus Layer — "One Goal at a Time" (Cosmetic, Session-Only)
+- **Purpose**: Walk a first-timer through the tasting menu goal by goal, CS50-style, so they always know the single next action — without ever locking the page.
+- **Goal data**: `GUIDE_STAGES` (`1..5`) maps each stage to a `moduleId`, a plain-language `goal`, a `what`/`why`/`help` trio, and an ordered `steps` array of stable selectors + hints.
+- **Flow**: The Stage Track offers **▶ Start guided tour**, five jump-to-any-goal chips, and a current-goal line. In focus mode a spotlight (`#coach-layer` → `#coach-hole` + `#coach-bubble`) shines on the exact control, while other stations dim visually (`.is-guide-dimmed`) but stay fully clickable.
+- **Advancement**: Completing a stage's real success path calls `gamiEarnBadge(...)`, which calls `guideCompleteStage(moduleId)`; the track marks the goal done, the bubble shows a recap, and the tour advances to the next incomplete goal.
+- **Guide drawer**: **📖 Guide** opens a side panel with *What this is / Your goal / Why it matters / Need help?* for the current goal, with a focus trap and Esc-to-close.
+- **Lens, not a lock**: **👋 Free explore** (and the Esc key) exits the spotlight at any time; stage chips jump anywhere; no station is ever disabled, hidden, or gated.
+- **Rules**: Fully in-memory (`guideState`) — zero `safeStorage` keys, resets on every page load; respects `prefers-reduced-motion` for scrolling, confetti, and the coach pop.
+
 ### 4.9 Removed Systems (Do Not Reintroduce Without Discussion)
 - Knowledge-check quizzes, readiness checklist/certificate, level progression with lock overlays, learning-path strip, level toasts, graduation modal, and the Windows-to-Mint translator were all removed: they turned a tasting menu into a course and hid content behind tests.
 - Their code (`QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `initQuizzes`, `initChecklistClicks`, `initLevelSystem`, `markProgress`, `updateProgressUI`, `initTranslator`) and styles were deleted from `js/app.js` and `css/style.css`.
@@ -154,7 +163,7 @@ All state keys are accessed via `safeStorage`:
 | `mint_theme` | String: `'dark'` \| `'light'` | Stores user's preferred visual theme |
 | `mint_installed_apps` | JSON Array: `["vlc", "libreoffice"]` | Persists custom installed apps in Software Manager |
 
-> **Note**: Nothing about visitor progress is stored — there are no quizzes, checklists, or levels. Only the theme preference and the Software Manager's installed-app list persist. The cookie-free gamification layer (five in-session achievement badges + a streak ring) is purely cosmetic: it lives in memory only, resets on every page load, and never gates or records anything.
+> **Note**: Nothing about visitor progress is stored — there are no quizzes, checklists, or levels. Only the theme preference and the Software Manager's installed-app list persist. The cookie-free gamification layer (five in-session achievement badges + a streak ring) and the guided-focus layer (spotlight tour + guide drawer) are purely cosmetic: they live in memory only, reset on every page load, and never gate or record anything.
 
 ---
 

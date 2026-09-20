@@ -153,7 +153,11 @@
   function getFocusable(container) {
     return Array.prototype.filter.call(
       container.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'),
-      function (n) { return n.offsetParent !== null; }
+      function (n) {
+        if (n.offsetParent !== null) return true;
+        const r = n.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      }
     );
   }
 
@@ -1404,33 +1408,41 @@
 
   function gamiEarnBadge(moduleId) {
     const station = GAMI_STATIONS[moduleId];
-    if (!station || gamiEarned[moduleId]) return;
-
-    gamiEarned[moduleId] = true;
-    gamiStreak = Math.min(gamiStreak + 1, gamiTotal);
+    if (!station) return;
 
     const badge = document.querySelector('.achievement-badge[data-badge="' + moduleId + '"]');
-    if (badge) {
+    const dot = document.querySelector('.gami-dot[data-gami="' + moduleId + '"]');
+
+    if (!gamiEarned[moduleId]) {
+      gamiEarned[moduleId] = true;
+      gamiStreak = Math.min(gamiStreak + 1, gamiTotal);
+
+      if (badge) {
+        badge.classList.add('earned');
+        badge.setAttribute('aria-label', station.label + ' achievement badge: earned');
+        // restart the pop animation even on rapid re-triggers
+        badge.classList.remove('earned');
+        void badge.offsetWidth;
+        badge.classList.add('earned');
+      }
+      if (dot) dot.classList.add('earned');
+
+      gamiBurstConfetti();
+      gamiSetRingDom(station.icon + ' <strong>' + station.label + '</strong> badge earned! ' + station.cheer);
+
+      const msgEl = document.getElementById('gami-msg');
+      setTimeout(function () {
+        if (msgEl && msgEl.textContent.indexOf('badge earned') !== -1) {
+          gamiSetRingDom('Every taste earns its own badge while this page is open. Try another station!');
+        }
+      }, 6000);
+    } else if (badge) {
+      // replay: keep the badge lit without re-bursting confetti
       badge.classList.add('earned');
       badge.setAttribute('aria-label', station.label + ' achievement badge: earned');
-      // restart the pop animation even on rapid re-triggers
-      badge.classList.remove('earned');
-      void badge.offsetWidth;
-      badge.classList.add('earned');
     }
 
-    const dot = document.querySelector('.gami-dot[data-gami="' + moduleId + '"]');
-    if (dot) dot.classList.add('earned');
-
-    gamiBurstConfetti();
-    gamiSetRingDom(station.icon + ' <strong>' + station.label + '</strong> badge earned! ' + station.cheer);
-
-    const msgEl = document.getElementById('gami-msg');
-    setTimeout(function () {
-      if (msgEl && msgEl.textContent.indexOf('badge earned') !== -1) {
-        gamiSetRingDom('Every taste earns its own badge while this page is open. Try another station!');
-      }
-    }, 6000);
+    guideCompleteStage(moduleId);
   }
 
   function gamiInit() {
@@ -1442,6 +1454,423 @@
     }
     gamiSetRingDom();
   }
+
+  // --- 10c. GUIDED TASTING: ONE GOAL AT A TIME (LENS, NOT A LOCK) ---
+
+  // In-memory only, session-only, resets with the page by design.
+  // Never persisted, never gates or disables any station.
+  const guideState = {
+    current: 1,
+    mode: 'idle',
+    stepIndex: 0,
+    completed: {}
+  };
+
+  const GUIDE_STAGES = {
+    1: {
+      moduleId: 'module-1',
+      label: 'The Safety Net',
+      goal: 'Break the system on purpose, then prove you can fix it in one click.',
+      what: 'Timeshift is the undo button for your whole system.',
+      why: 'Breaking things stops being scary when you know you can roll back in seconds.',
+      help: 'In the Safety Net taste, click Simulate Bad Tweak, then Restore Snapshot.',
+      steps: [
+        { selector: '#btn-simulate-break', hint: 'Click "Simulate Bad Tweak" — breaking things here is the whole point.' },
+        { selector: '#btn-restore-snapshot', hint: 'Now click "Restore Snapshot" and watch it reset in seconds.' }
+      ]
+    },
+    2: {
+      moduleId: 'module-2',
+      label: 'The Whisker Menu',
+      goal: 'Prove you can find and launch any app without help.',
+      what: 'The Whisker menu is Mint\'s Start menu — apps live in one obvious place.',
+      why: 'No hunting the web for downloads; everything is a click away.',
+      help: 'In the Whisker taste, type in the search box, then click an app to launch it.',
+      steps: [
+        { selector: '#whisker-search', hint: 'Type in the search box — try "Calc" or "Firefox".' },
+        { selector: '.whisker-app-item', hint: 'Click any app result to launch it.' }
+      ]
+    },
+    3: {
+      moduleId: 'module-3',
+      label: 'The Software Manager',
+      goal: 'Install one app safely, end to end.',
+      what: 'Software Manager is the single, trusted app store for Mint.',
+      why: 'One safe store instead of sketchy download sites with bundled junk.',
+      help: 'In the Software taste, search for an app, then press Install (1-Click).',
+      steps: [
+        { selector: '#software-search', hint: 'Search for something you would actually want — try "Steam" or "VLC".' },
+        { selector: '.btn-install-app', hint: 'Click "Install (1-Click)" and watch the progress bar finish.' }
+      ]
+    },
+    4: {
+      moduleId: 'module-4',
+      label: 'Where Your Files Live',
+      goal: 'Find a file without a drive letter.',
+      what: 'Thunar shows your Home folder — one place for everything you own.',
+      why: 'No C:, no D: — just clear places for your documents, pictures, and downloads.',
+      help: 'In the Files taste, open a folder, then open any file inside it.',
+      steps: [
+        { selector: '#thunar-files', hint: 'Double-click a folder such as Documents or Downloads.' },
+        { selector: '.thunar-file-item', hint: 'Click a file to open and read it.' }
+      ]
+    },
+    5: {
+      moduleId: 'module-5',
+      label: 'The (Optional) Terminal',
+      goal: 'Run one real command and see that nothing explodes.',
+      what: 'The terminal is a powerful text-based tool — but completely optional.',
+      why: 'You can live a whole Mint life without it; it is just there when you want power.',
+      help: 'In the Terminal taste, click a command chip such as neofetch.',
+      steps: [
+        { selector: '#terminal-command-chips', hint: 'Click any command chip — try "neofetch" or "ls".' },
+        { selector: '#terminal-input', hint: 'Read the plain-English note that appears under the output.' }
+      ]
+    }
+  };
+
+  function guidePrefersReducedMotion() {
+    return gamiPrefersReducedMotion();
+  }
+
+  function guideScrollToEl(el) {
+    if (!el) return;
+    if (guidePrefersReducedMotion()) {
+      el.scrollIntoView({ block: 'center' });
+    } else {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function guideGetStage() {
+    return GUIDE_STAGES[guideState.current] || GUIDE_STAGES[1];
+  }
+
+  function guideStageNumber(moduleId) {
+    const keys = Object.keys(GUIDE_STAGES);
+    for (let i = 0; i < keys.length; i++) {
+      if (GUIDE_STAGES[keys[i]].moduleId === moduleId) return parseInt(keys[i], 10);
+    }
+    return 0;
+  }
+
+  function guideFirstIncomplete() {
+    for (let n = 1; n <= 5; n++) {
+      if (!guideState.completed[n]) return n;
+    }
+    return 0;
+  }
+
+  function guideNextIncomplete() {
+    for (let i = 1; i <= 5; i++) {
+      const n = ((guideState.current + i - 1) % 5) + 1;
+      if (!guideState.completed[n]) return n;
+    }
+    return guideState.current;
+  }
+
+  function guideSetFocus(targetModuleId) {
+    document.querySelectorAll('.module-card').forEach(function (card) {
+      const isCurrent = targetModuleId && card.id === targetModuleId;
+      card.classList.toggle('is-guide-current', !!isCurrent);
+      card.classList.toggle('is-guide-dimmed', !!targetModuleId && !isCurrent);
+    });
+  }
+
+  function guideRenderTrack() {
+    const stage = guideGetStage();
+    document.querySelectorAll('.stage-chip[data-stage]').forEach(function (chip) {
+      const n = parseInt(chip.getAttribute('data-stage'), 10);
+      const done = !!guideState.completed[n];
+      const isActive = guideState.mode === 'focused' && n === guideState.current;
+      chip.classList.toggle('is-done', done);
+      chip.classList.toggle('is-active', isActive);
+      if (n === guideState.current) {
+        chip.setAttribute('aria-current', 'step');
+      } else {
+        chip.removeAttribute('aria-current');
+      }
+    });
+
+    const line = document.getElementById('stage-goal-line');
+    if (line) {
+      if (guideState.mode === 'focused') {
+        if (guideState.completed[guideState.current]) {
+          line.textContent = 'Goal ' + guideState.current + ' complete! ' + stage.goal;
+        } else {
+          line.textContent = 'Now on Goal ' + guideState.current + ': ' + stage.goal;
+        }
+      } else {
+        line.textContent = 'Pick a goal below, or start the guided tour and follow it step by step. Nothing is locked — every taste stays clickable.';
+      }
+    }
+  }
+
+  function guideSetButtons(focused) {
+    const startBtn = document.getElementById('guide-start-btn');
+    const exitBtn = document.getElementById('guide-exit-btn');
+    if (startBtn) startBtn.hidden = focused;
+    if (exitBtn) exitBtn.hidden = !focused;
+  }
+
+  function guideSpotlight() {
+    const layer = document.getElementById('coach-layer');
+    const hole = document.getElementById('coach-hole');
+    const bubble = document.getElementById('coach-bubble');
+
+    if (!layer || guideState.mode !== 'focused') {
+      if (layer) layer.hidden = true;
+      guideSetFocus(null);
+      return;
+    }
+
+    document.body.classList.add('guide-focus');
+    layer.hidden = false;
+
+    const stage = guideGetStage();
+    const step = stage.steps[guideState.stepIndex] || stage.steps[0];
+    let target = null;
+    try {
+      target = document.querySelector(step.selector);
+    } catch (e) {
+      target = null;
+    }
+
+    guideScrollToEl(document.getElementById(stage.moduleId) || target);
+    guideSetFocus(stage.moduleId);
+
+    if (target && hole) {
+      const rect = target.getBoundingClientRect();
+      const pad = 6;
+      hole.style.left = Math.max(0, rect.left - pad) + 'px';
+      hole.style.top = Math.max(0, rect.top - pad) + 'px';
+      hole.style.width = (rect.width + pad * 2) + 'px';
+      hole.style.height = (rect.height + pad * 2) + 'px';
+      hole.style.display = 'block';
+      try {
+        if (typeof target.focus === 'function' && target !== document.activeElement) {
+          target.focus({ preventScroll: true });
+        }
+      } catch (e) {
+        // focus is best-effort; never fatal
+      }
+    } else if (hole) {
+      hole.style.display = 'none';
+    }
+
+    const numEl = document.getElementById('coach-stage-num');
+    if (numEl) numEl.textContent = String(guideState.current);
+
+    const titleEl = document.getElementById('coach-bubble-title');
+    if (titleEl) titleEl.textContent = 'Goal ' + guideState.current + ' — ' + stage.label;
+
+    const hintEl = document.getElementById('coach-bubble-hint');
+    if (hintEl) hintEl.textContent = step.hint;
+
+    const stepsEl = document.getElementById('coach-bubble-steps');
+    if (stepsEl) {
+      stepsEl.innerHTML = stage.steps.map(function (s, i) {
+        const cls = i < guideState.stepIndex
+          ? 'coach-step is-done'
+          : (i === guideState.stepIndex ? 'coach-step is-current' : 'coach-step');
+        return '<div class="' + cls + '"><span>' + (i + 1) + '</span><span>' + escapeHtml(s.hint) + '</span></div>';
+      }).join('');
+    }
+
+    const nextBtn = document.getElementById('coach-next-btn');
+    if (nextBtn) {
+      if (guideState.stepIndex < stage.steps.length - 1) {
+        nextBtn.textContent = 'Next step →';
+      } else if (guideFirstIncomplete()) {
+        nextBtn.textContent = 'Next goal →';
+      } else {
+        nextBtn.textContent = '🎉 All five goals done';
+      }
+    }
+
+    guideRenderTrack();
+  }
+
+  function guideStart() {
+    guideState.mode = 'focused';
+    guideState.stepIndex = 0;
+    if (guideState.completed[guideState.current]) {
+      const nextN = guideFirstIncomplete();
+      if (nextN) guideState.current = nextN;
+    }
+    guideSetButtons(true);
+    guideSpotlight();
+  }
+
+  function guideExit() {
+    guideState.mode = 'idle';
+    guideState.stepIndex = 0;
+    const layer = document.getElementById('coach-layer');
+    if (layer) layer.hidden = true;
+    document.body.classList.remove('guide-focus');
+    guideSetFocus(null);
+    guideSetButtons(false);
+    guideRenderTrack();
+    const startBtn = document.getElementById('guide-start-btn');
+    if (startBtn) startBtn.focus();
+  }
+
+  function guideGoTo(n) {
+    const stage = GUIDE_STAGES[n];
+    if (!stage) return;
+    guideState.current = n;
+    guideState.stepIndex = 0;
+    if (guideState.mode === 'focused') {
+      guideSpotlight();
+    } else {
+      guideRenderTrack();
+      guideScrollToEl(document.getElementById(stage.moduleId));
+    }
+  }
+
+  function guideNext() {
+    const stage = guideGetStage();
+    if (guideState.stepIndex < stage.steps.length - 1) {
+      guideState.stepIndex++;
+      guideSpotlight();
+    } else {
+      guideGoTo(guideNextIncomplete());
+    }
+  }
+
+  function guideJumpToStage(n) {
+    guideGoTo(n);
+  }
+
+  function guideCompleteStage(moduleId) {
+    const n = guideStageNumber(moduleId);
+    if (!n) return;
+
+    guideState.completed[n] = true;
+    const stage = GUIDE_STAGES[n];
+
+    const completeEl = document.getElementById('stage-complete');
+    if (completeEl && stage) {
+      completeEl.innerHTML = '🎓 <strong>Goal ' + n + ' complete:</strong> ' + escapeHtml(stage.goal) +
+        ' <em>What you just proved — ' + escapeHtml(stage.why) + '</em>';
+    }
+
+    guideRenderTrack();
+
+    if (guideState.mode !== 'focused') return;
+
+    const titleEl = document.getElementById('coach-bubble-title');
+    const hintEl = document.getElementById('coach-bubble-hint');
+    const stepsEl = document.getElementById('coach-bubble-steps');
+    if (titleEl) titleEl.textContent = 'Goal ' + n + ' complete — nice work!';
+    if (hintEl) hintEl.textContent = 'What you just proved: ' + stage.why;
+    if (stepsEl) stepsEl.innerHTML = '';
+
+    const nextN = guideFirstIncomplete();
+    if (!nextN) {
+      const numEl = document.getElementById('coach-stage-num');
+      if (numEl) numEl.textContent = '5';
+      const nextBtn = document.getElementById('coach-next-btn');
+      if (nextBtn) nextBtn.textContent = '🎉 All five goals done';
+    } else {
+      guideState.current = nextN;
+      guideState.stepIndex = 0;
+      guideRenderTrack();
+    }
+  }
+
+  function guideDrawerIsOpen() {
+    const drawer = document.getElementById('guide-drawer');
+    return !!drawer && !drawer.hidden;
+  }
+
+  function guideDrawerFill(n) {
+    const stage = GUIDE_STAGES[n] || GUIDE_STAGES[1];
+    const titleEl = document.getElementById('guide-drawer-title');
+    const bodyEl = document.getElementById('guide-drawer-body');
+    if (titleEl) titleEl.textContent = 'Goal ' + n + ' — ' + stage.label;
+    if (bodyEl) {
+      bodyEl.innerHTML =
+        '<h4>What this is</h4><p>' + escapeHtml(stage.what) + '</p>' +
+        '<h4>Your goal</h4><p>' + escapeHtml(stage.goal) + '</p>' +
+        '<h4>Why it matters</h4><p>' + escapeHtml(stage.why) + '</p>' +
+        '<h4>Need help?</h4><p>' + escapeHtml(stage.help) + '</p>';
+    }
+  }
+
+  function openGuideDrawer() {
+    const drawer = document.getElementById('guide-drawer');
+    if (!drawer) return;
+    guideDrawerFill(guideState.current);
+    drawer.hidden = false;
+    document.body.classList.add('guide-drawer-open');
+    const toggle = document.getElementById('guide-toggle');
+    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+    const closeBtn = document.getElementById('guide-drawer-close');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeGuideDrawer() {
+    const drawer = document.getElementById('guide-drawer');
+    if (!drawer || drawer.hidden) return;
+    drawer.hidden = true;
+    document.body.classList.remove('guide-drawer-open');
+    const toggle = document.getElementById('guide-toggle');
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.focus();
+    }
+  }
+
+  function toggleGuideDrawer() {
+    if (guideDrawerIsOpen()) {
+      closeGuideDrawer();
+    } else {
+      openGuideDrawer();
+    }
+  }
+
+  function initGuide() {
+    const startBtn = document.getElementById('guide-start-btn');
+    const exitBtn = document.getElementById('guide-exit-btn');
+    const skipBtn = document.getElementById('coach-skip-btn');
+    const nextBtn = document.getElementById('coach-next-btn');
+    const coachExitBtn = document.getElementById('coach-exit-btn');
+    const drawerToggle = document.getElementById('guide-toggle');
+    const drawerClose = document.getElementById('guide-drawer-close');
+    const drawerScrim = document.getElementById('guide-drawer-scrim');
+    const drawerPanel = document.querySelector('.guide-drawer-panel');
+
+    if (startBtn) startBtn.onclick = function () { guideStart(); };
+    if (exitBtn) exitBtn.onclick = function () { guideExit(); };
+    if (skipBtn) skipBtn.onclick = function () { guideState.stepIndex = 0; guideGoTo(guideNextIncomplete()); };
+    if (nextBtn) nextBtn.onclick = function () { guideNext(); };
+    if (coachExitBtn) coachExitBtn.onclick = function () { guideExit(); };
+
+    document.querySelectorAll('.stage-chip[data-stage]').forEach(function (chip) {
+      chip.onclick = function () {
+        const n = parseInt(chip.getAttribute('data-stage'), 10);
+        guideJumpToStage(n);
+      };
+    });
+
+    window.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (guideState.mode === 'focused') {
+        guideExit();
+      } else if (guideDrawerIsOpen()) {
+        closeGuideDrawer();
+      }
+    });
+
+    if (drawerToggle) drawerToggle.onclick = function () { toggleGuideDrawer(); };
+    if (drawerClose) drawerClose.onclick = function () { closeGuideDrawer(); };
+    if (drawerScrim) drawerScrim.onclick = function () { closeGuideDrawer(); };
+    if (drawerPanel) drawerPanel.onkeydown = function (e) { trapTab(e, drawerPanel); };
+
+    guideRenderTrack();
+  }
+
   // --- 11. BULLETPROOF BOOTSTRAP ---
   function bootstrap() {
     try {
@@ -1454,6 +1883,7 @@
       initThunarSimulator();
       initTerminalSimulator();
       gamiInit();
+      initGuide();
     } catch (err) {
       if (typeof console !== 'undefined' && console.error) {
         console.error('Error during Mint Guide initialization:', err);

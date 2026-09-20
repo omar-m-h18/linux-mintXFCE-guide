@@ -79,6 +79,12 @@ This **Linux Mint XFCE Guide** is a tasting menu, not a course: five clickable s
 - Watch the streak ring fill from 0 to 5 and catch a confetti burst on every badge.
 - Everything is in-memory only: it resets on reload, saves nothing, and never locks or gates a station.
 
+### 9. 🎓 Guided Focus Mode (One Goal at a Time)
+- Press **Start guided tour** to be walked through the five goals one at a time, CS50-style, with a spotlight coach-mark on the exact control to use.
+- Each station shows its own **Goal** banner with concrete steps and a plain-English "why it matters".
+- Open **📖 Guide** any time for a side panel covering what each goal is, why it matters, and how to get unstuck.
+- It is a **lens, not a lock**: **👋 Free explore** leaves the spotlight whenever you like, the stage chips jump to any goal, and every station stays clickable the whole time.
+
 ---
 
 ## 🚀 Quick Start (Zero Installation)
@@ -111,9 +117,9 @@ python -m http.server 8000
 linux-mintXFCE-guide/
 ├── index.html           # Semantic, accessible HTML5 structure
 ├── css/
-│   └── style.css        # Responsive Mint-Y CSS3 design system (~1450 lines)
+│   └── style.css        # Responsive Mint-Y CSS3 design system (~1950 lines)
 ├── js/
-│   └── app.js           # Vanilla ES6+ taste-station simulators, theme, preview modal (~1290 lines)
+│   └── app.js           # Vanilla ES6+ taste-station simulators, theme, guided focus, preview modal (~1700 lines)
 ├── knowledge.md         # Comprehensive project knowledge base
 ├── TECHNICAL_REPORT.md  # Detailed engineering architecture report
 ├── AGENTS.md            # Autonomous AI agent documentation & API map

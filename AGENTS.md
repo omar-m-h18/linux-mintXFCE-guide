@@ -37,9 +37,9 @@ When analyzing, modifying, or extending this repository, every AI agent **MUST**
 linux-mintXFCE-guide/
 ├── index.html            # Primary UI layout & semantic DOM tree
 ├── css/
-│   └── style.css         # Mint-Y CSS variables, layout grids, components (~1465 lines)
+│   └── style.css         # Mint-Y CSS variables, layout grids, components (~1950 lines)
 ├── js/
-│   └── app.js            # Taste-station simulators, theme, preview modal (~1310 lines)
+│   └── app.js            # Taste-station simulators, theme, guided focus, preview modal (~1700 lines)
 ├── knowledge.md          # Domain knowledge base & Lovable project brief
 ├── TECHNICAL_REPORT.md   # Architectural whitepaper & subsystem state machines
 ├── AGENTS.md             # This agent operation manual
@@ -49,10 +49,11 @@ linux-mintXFCE-guide/
 ### 2.1 Key DOM Anchors in `index.html`
 | Section / Component | Container ID / Class | Key Sub-Elements |
 | :--- | :--- | :--- |
-| **Sticky Navigation** | `header.top-nav` | `.brand`, `.nav-links`, `#theme-toggle-btn` |
+| **Sticky Navigation** | `header.top-nav` | `.brand`, `.nav-links`, `#theme-toggle-btn`, `#guide-toggle` |
 | **Hero** | `section.hero` | `h2`, `.hero-cta` (`a[href="#taste"]`) |
 | **The Deal** | `section#the-deal` | `.deal-lede`, `.deal-list` |
-| **Taste Stations** | `main#taste` | `article#module-1` … `article#module-5`, `.taste-takeaway` |
+| **Stage Track** | `section.gami-strip` | `#gami-ring`, `.stage-track`, `.stage-chip[data-stage]`, `#stage-goal-line`, `#guide-start-btn`, `#guide-exit-btn`, `#stage-complete` |
+| **Taste Stations** | `main#taste` | `article#module-1` … `article#module-5`, `.stage-goal`, `.taste-takeaway` |
 | **Timeshift Taste** | `#window-timeshift` | `#timeshift-status`, `#btn-take-snapshot`, `#btn-simulate-break`, `#btn-restore-snapshot` |
 | **Whisker Taste** | `#window-whisker` | `#whisker-search`, `#whisker-apps-container`, `#whisker-menu-trigger`, `.xfce-mock-panel` |
 | **Software Taste** | `#window-software` | `#software-search`, `#software-category-filter`, `#software-grid` |
@@ -60,6 +61,8 @@ linux-mintXFCE-guide/
 | **Terminal Taste** | `#window-terminal` | `#terminal-screen`, `#terminal-input`, `#term-run-btn`, `#terminal-command-chips` |
 | **Decide** | `section#decide` | `.decide-card`, `.decide-actions` |
 | **Preview Modal** | `#mock-preview-modal` | `#mock-modal-title`, `#mock-modal-body`, `#mock-modal-close-btn` |
+| **Guide Drawer** | `#guide-drawer` | `#guide-drawer-title`, `#guide-drawer-body`, `#guide-drawer-close`, `#guide-drawer-scrim` |
+| **Coach Layer** | `#coach-layer` | `#coach-hole`, `#coach-bubble`, `#coach-stage-num`, `#coach-bubble-title`, `#coach-bubble-hint`, `#coach-bubble-steps`, `#coach-next-btn`, `#coach-skip-btn`, `#coach-exit-btn` |
 
 ---
 
@@ -77,6 +80,16 @@ linux-mintXFCE-guide/
 - **`WHISKER_APPS`** (Menu Launcher): Array of launcher items (`{ name, cat, icon, desc }`).
 - There is intentionally **no persisted quiz, checklist, level, or progress state** anywhere in the codebase. Do not reintroduce `QUIZ_DATA`, `TRACKED_TASKS`, `LEVELS`, `markProgress`, or `updateProgressUI` without explicit user approval.
 - **Session-only gamification exception (approved 2026)**: A cosmetic streak counter + achievement badges (`gamiEarnBadge`, `gamiInit`, `gamiBurstConfetti`) light up five station badges and a progress ring in memory only. It is **never persisted** (no new `safeStorage` keys), **never gates or disables any station**, and resets on every page load. Do not extend it to per-user storage, toasts, or locked content without explicit user approval.
+- **Guided focus exception (approved 2026)**: A session-only guided layer (`initGuide`, `guideState`, `GUIDE_STAGES`, `guideSpotlight`, `guideCompleteStage`) walks the visitor one goal at a time with a spotlight coach-mark, a Guide drawer, and a Stage Track. It is a **lens, not a gate**: every station stays interactive, "Free explore" exits the spotlight at any time, and the track allows jumping to any stage. State is in-memory only (`guideState`), **never** persisted (no `safeStorage` keys), and resets on reload. Do not add locks, prerequisites, `LEVELS`-style progression, or stored progress without explicit user approval.
+
+### 3.3 Guided Focus Subsystem (`initGuide`)
+- `guideState`: in-memory `{ current, mode, stepIndex, completed }` — never persisted.
+- `GUIDE_STAGES`: map `1..5` → `{ moduleId, label, goal, what, why, help, steps:[{ selector, hint }] }`.
+- Functions: `initGuide()`, `guideStart()`, `guideGoTo(n)`, `guideNext()`, `guideCompleteStage(moduleId)`, `guideExit()`, `guideSpotlight()`, `guideRenderTrack()`, `openGuideDrawer()`, `closeGuideDrawer()`.
+- `guideCompleteStage(moduleId)` is invoked from `gamiEarnBadge()` so the five existing success paths stay the single source of truth for completion.
+- DOM: `#stage-track`/`.stage-track`, `.stage-chip[data-stage]`, `#stage-goal-line`, `#stage-complete`, `#guide-drawer`, `#guide-toggle`, `#coach-layer`, `#coach-hole`, `#coach-bubble`, `.stage-goal`.
+- Reuses a11y helpers `getFocusable`, `trapTab`, `restoreFocus`; respects `prefers-reduced-motion`.
+- Focus mode dims non-current content visually (`.is-guide-dimmed`) but **never** sets `disabled`, `inert`, or blocks pointer events.
 
 ---
 
@@ -144,6 +157,13 @@ New stations are rare — the page is fixed at five tastes plus the decision car
 3. Never add quizzes, locks, progress tracking, or gating — all stations are always interactive.
 4. Gamification is additive and cosmetic only: badge-earning calls (`gamiEarnBadge`) and the confetti burst must never disable buttons, gate content, or touch `safeStorage`. Badges re-pop on repeat triggers but the streak only increments once per module per page load.
 
+### Recipe 5: Adding a Guided Stage
+1. Add the stage to `GUIDE_STAGES` in `js/app.js`, keyed by its number `1..5`, with `moduleId` matching `article#module-N`.
+2. Point `steps[].selector` at stable selectors (prefer existing IDs such as `#btn-take-snapshot`).
+3. Add the `.stage-goal` block in the matching `article#module-N` and a `.stage-chip[data-stage="N"]` in the Stage Track.
+4. Ensure the stage's success path calls `gamiEarnBadge('module-N')`; guide completion hooks in automatically.
+5. Never gate: no disabled states, prerequisites, or overlays that block other stages.
+
 ---
 
 ## 5. Verification & Testing Matrix for AI Agents
@@ -162,6 +182,11 @@ Whenever making changes, an AI agent must perform the following self-checks:
 | **Preview Modal** | Opening a file/app preview traps Tab focus; Escape closes; focus returns to trigger | Verify `trapTab`, `focusDialog`, `restoreFocus` wiring in `initMockModal()` |
 | **Anchor Navigation** | Nav links and hero CTA smooth-scroll to `#the-deal`, `#taste`, `#decide` | Verify target IDs exist and are unique |
 | **No Dead References** | No JS references to removed quiz/level/checklist/translator IDs | Grep for `quiz-`, `check-`, `level-`, `completion-modal`, `updateProgressUI` → zero hits |
+| **Guide Start** | "Start guided tour" spotlights the stage-1 target; Esc / Free explore exits | Verify `guideStart()`, `guideExit()`, `#coach-layer` |
+| **Guide Goal Advance** | Each of the 5 goals calls `guideCompleteStage` and advances the track | Verify `gamiEarnBadge` → `guideCompleteStage` wiring |
+| **Guide Non-Gating** | All stations interactive while guided; no locks | Confirm no `disabled`, input-blocking overlays, or prerequisites |
+| **Guide Storage** | Zero new `safeStorage` keys for guide/stage state | Grep `safeStorage`; guide state must be in-memory |
+| **Guide Keyboard** | Tab/Enter/Space/Esc operate coach-marks and drawer | Verify focus trap + Esc handlers |
 
 ---
 
@@ -171,4 +196,5 @@ Whenever making changes, an AI agent must perform the following self-checks:
 - **DOM Manipulation**: Use `querySelector` and `querySelectorAll`. Always check for element existence before attaching event listeners.
 - **CSS Architecture**: Use existing CSS custom properties (`--mint-primary`, `--bg-surface`, `--text-main`). Never hardcode hex color codes directly into inline styles or new CSS rules unless defining new theme tokens.
 - **HTML Accessibility**: Preserve semantic tags (`<header>`, `<nav>`, `<main>`, `<section>`, `<footer>`), form label associations, and meaningful `aria-label` attributes on icon-only buttons.
+- **Guided Focus Naming**: Prefix guided-layer functions with `guide` (e.g. `guideSpotlight`, `guideRenderTrack`). Reuse the per-station badge tokens `--badge-m1..5` and the academic tokens `--academic-*` rather than hardcoding new colors.
 

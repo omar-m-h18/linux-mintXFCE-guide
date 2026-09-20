@@ -29,6 +29,9 @@
         <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle theme">
           🌙 Dark Mode
         </button>
+        <button type="button" class="theme-toggle-btn guide-toggle-btn" id="guide-toggle" aria-expanded="false" aria-controls="guide-drawer" aria-label="Open the guide panel">
+          📖 Guide
+        </button>
       </div>
     </div>
   </header>
@@ -60,8 +63,8 @@
     </div>
   </section>
 
-  <!-- In-session tasting streak & badge tracker (never saved, resets on reload) -->
-  <section class="gami-strip" aria-label="Tasting streak tracker">
+  <!-- In-session stage track & badge tracker (never saved, resets on reload) -->
+  <section class="gami-strip" aria-label="Tasting streak and guided stage track">
     <div class="container gami-strip-inner">
       <div class="gami-ring" id="gami-ring" style="--gami-pct: 0;" role="img" aria-label="Achievement ring showing 0 of 5 tastes">
         <div class="gami-ring-inner">
@@ -82,6 +85,26 @@
         <span class="gami-dot" data-gami="module-5" title="Terminal badge" aria-label="Terminal badge">💻</span>
       </div>
     </div>
+    <div class="container stage-track">
+      <div class="stage-track-head">
+        <div class="stage-track-title">
+          <div class="stage-kicker">🎓 Guided tasting — one goal at a time</div>
+          <div class="stage-goal-line" id="stage-goal-line" aria-live="polite">Pick a goal below, or start the guided tour and follow it step by step. Nothing is locked — every taste stays clickable.</div>
+        </div>
+        <div class="stage-track-actions">
+          <button type="button" class="sim-btn sim-btn-primary" id="guide-start-btn">▶ Start guided tour</button>
+          <button type="button" class="sim-btn" id="guide-exit-btn" hidden>👋 Free explore</button>
+        </div>
+      </div>
+      <div class="stage-chips" aria-label="Five guided goals">
+        <button type="button" class="stage-chip" data-stage="1">1 · Safety Net</button>
+        <button type="button" class="stage-chip" data-stage="2">2 · Whisker Menu</button>
+        <button type="button" class="stage-chip" data-stage="3">3 · Software</button>
+        <button type="button" class="stage-chip" data-stage="4">4 · Files</button>
+        <button type="button" class="stage-chip" data-stage="5">5 · Terminal</button>
+      </div>
+      <div class="stage-complete" id="stage-complete" aria-live="polite"></div>
+    </div>
   </section>
 
   <!-- Taste stations -->
@@ -101,6 +124,17 @@
       <p class="module-intro">
         Taste Mint's answer — an undo button for the whole system. Break it on purpose below, then fix it in one click.
       </p>
+
+      <!-- Stage goal for Guided Tasting -->
+      <div class="stage-goal">
+        <div class="stage-goal-kicker">🎓 Goal 1 of 5</div>
+        <p class="stage-goal-statement"><strong>Your goal:</strong> Break the system on purpose — then prove you can fix it in one click.</p>
+        <ol class="goal-steps">
+          <li>Click <strong>Simulate Bad Tweak</strong> to break things on purpose.</li>
+          <li>Click <strong>Restore Snapshot</strong> and watch it come back in seconds.</li>
+        </ol>
+        <p class="stage-goal-why"><strong>Why it matters:</strong> Timeshift is Mint's system-wide "undo" — the reason breaking things stops being scary.</p>
+      </div>
 
       <!-- XFCE Mock Window: Timeshift Simulator -->
       <div class="xfce-window" id="window-timeshift">
@@ -171,6 +205,17 @@
       <p class="module-intro">
         Click around below — search for an app, browse a category, press a panel button. It works like the corner you already know.
       </p>
+
+      <!-- Stage goal for Guided Tasting -->
+      <div class="stage-goal">
+        <div class="stage-goal-kicker">🎓 Goal 2 of 5</div>
+        <p class="stage-goal-statement"><strong>Your goal:</strong> Prove you can find — and launch — any app without help.</p>
+        <ol class="goal-steps">
+          <li>Type in the search box above (try <strong>Calc</strong>) or browse a category.</li>
+          <li>Click an app to launch it.</li>
+        </ol>
+        <p class="stage-goal-why"><strong>Why it matters:</strong> No hunting the web for downloads — every app lives in one obvious menu.</p>
+      </div>
 
       <!-- XFCE Mock Window: Whisker Menu Simulator -->
       <div class="xfce-window" id="window-whisker">
@@ -259,6 +304,17 @@
         One safe store instead of hunting the web. Search for something, install it, remove it — no sketchy downloads.
       </p>
 
+      <!-- Stage goal for Guided Tasting -->
+      <div class="stage-goal">
+        <div class="stage-goal-kicker">🎓 Goal 3 of 5</div>
+        <p class="stage-goal-statement"><strong>Your goal:</strong> Install one app safely, end to end — from a store, not a sketchy website.</p>
+        <ol class="goal-steps">
+          <li>Search for something you would actually want (try <strong>Steam</strong> or <strong>VLC</strong>).</li>
+          <li>Click <strong>Install (1-Click)</strong> and watch the progress bar finish.</li>
+        </ol>
+        <p class="stage-goal-why"><strong>Why it matters:</strong> Real Mint installs come from this one trusted store — fast, safe, easy to remove.</p>
+      </div>
+
       <!-- XFCE Mock Window: Software Manager Simulator -->
       <div class="xfce-window" id="window-software">
         <div class="xfce-titlebar">
@@ -315,6 +371,17 @@
       <p class="module-intro">
         No <code>C:\</code> drive — one Home folder with everything yours. Click through it below.
       </p>
+
+      <!-- Stage goal for Guided Tasting -->
+      <div class="stage-goal">
+        <div class="stage-goal-kicker">🎓 Goal 4 of 5</div>
+        <p class="stage-goal-statement"><strong>Your goal:</strong> Find a file without a drive letter.</p>
+        <ol class="goal-steps">
+          <li>Open a folder — <strong>Documents</strong> or <strong>Downloads</strong>.</li>
+          <li>Open any file to peek inside it.</li>
+        </ol>
+        <p class="stage-goal-why"><strong>Why it matters:</strong> Everything lives in one Home folder. No C:, no D: — just clear places for your stuff.</p>
+      </div>
 
       <!-- XFCE Mock Window: Thunar Simulator -->
       <div class="xfce-window" id="window-thunar">
@@ -384,6 +451,17 @@
       <p class="module-intro">
         Try a command below — then notice you never actually need this screen for daily life. It is just a power tool.
       </p>
+
+      <!-- Stage goal for Guided Tasting -->
+      <div class="stage-goal">
+        <div class="stage-goal-kicker">🎓 Goal 5 of 5</div>
+        <p class="stage-goal-statement"><strong>Your goal:</strong> Run one real command and see that nothing explodes.</p>
+        <ol class="goal-steps">
+          <li>Click a command chip (try <strong>neofetch</strong>) or type one in.</li>
+          <li>Read the plain-English note under the output.</li>
+        </ol>
+        <p class="stage-goal-why"><strong>Why it matters:</strong> The terminal is an optional power tool — you can live a whole Mint life without it.</p>
+      </div>
 
       <!-- Terminal Sandbox Simulator -->
       <div class="terminal-window" id="window-terminal">
@@ -485,6 +563,49 @@
       </div>
     </div>
   </footer>
+
+  <!-- Guide panel (session-only reference for each goal) -->
+  <aside class="guide-drawer" id="guide-drawer" role="complementary" aria-label="Guide panel" hidden>
+    <button type="button" class="guide-drawer-scrim" id="guide-drawer-scrim" aria-hidden="true" tabindex="-1"></button>
+    <div class="guide-drawer-panel">
+      <div class="guide-drawer-header">
+        <div>
+          <div class="guide-drawer-kicker">📖 The Guide</div>
+          <div class="guide-drawer-title" id="guide-drawer-title">Goal 1 — The Safety Net</div>
+        </div>
+        <button type="button" class="side-close-btn" id="guide-drawer-close" aria-label="Close guide">✕</button>
+      </div>
+      <div class="guide-drawer-body" id="guide-drawer-body">
+        <h4>What this is</h4>
+        <p>Timeshift is the undo button for your whole system.</p>
+        <h4>Your goal</h4>
+        <p>Break the system on purpose, then prove you can fix it in one click.</p>
+        <h4>Why it matters</h4>
+        <p>Breaking things stops being scary when you know you can roll back in seconds.</p>
+        <h4>Need help?</h4>
+        <p>Open the Safety Net taste, click Simulate Bad Tweak, then Restore Snapshot.</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Spotlight coach layer used by Guided Tasting (lens, not a lock) -->
+  <div class="coach-layer" id="coach-layer" hidden>
+    <div class="coach-hole" id="coach-hole"></div>
+    <div class="coach-bubble" id="coach-bubble" role="dialog" aria-modal="true" aria-labelledby="coach-bubble-title">
+      <div class="coach-kicker">🎓 Stage <span id="coach-stage-num">1</span> of 5</div>
+      <div class="coach-bubble-title" id="coach-bubble-title">Goal 1 — break it, then fix it</div>
+      <div class="coach-bubble-hint" id="coach-bubble-hint">Follow the steps below — the shine follows your mouse manually anytime.</div>
+      <div class="coach-bubble-steps" id="coach-bubble-steps">
+        <div class="coach-step"><span>1</span><span>Click Simulate Bad Tweak — breaking things here is the point.</span></div>
+        <div class="coach-step"><span>2</span><span>Click Restore Snapshot and watch it reset.</span></div>
+      </div>
+      <div class="coach-bubble-actions">
+        <button type="button" class="sim-btn" id="coach-skip-btn">Skip →</button>
+        <button type="button" class="sim-btn sim-btn-primary" id="coach-next-btn">Next goal →</button>
+      </div>
+      <button type="button" class="side-close-btn" id="coach-exit-btn">👋 Free explore</button>
+    </div>
+  </div>
 
   <!-- Celebration confetti layer (injected with animated pieces on badge unlocks) -->
   <div id="confetti-layer" class="confetti-layer" aria-hidden="true"></div>
