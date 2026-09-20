@@ -51,9 +51,15 @@
   --gami-confetti-color-3: #a78bfa;
   --gami-confetti-color-4: #fb7185;
   --gami-confetti-color-5: #f59e0b;
-  --gami-confetti-color-6: #fbbf24;
+   --gami-confetti-color-6: #fbbf24;
+   --gami-ring-from: #2f855a;
+   --gami-ring-to: #87cf3e;
+   --gami-toast-bg: linear-gradient(135deg, #2f855a 0%, #87cf3e 100%);
+   --gami-toast-text: #ffffff;
+   --gami-badge-shimmer: linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%);
+   --gami-ring-sweep: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
 
-  /* Per-station badge colors (module-1..5) */
+   /* Per-station badge colors (module-1..5) */
   --badge-m1: #0891b2;
   --badge-m1-soft: rgba(8, 145, 178, 0.14);
   --badge-m2: #7c3aed;
@@ -143,9 +149,15 @@ body.dark {
   --gami-confetti-color-3: #a78bfa;
   --gami-confetti-color-4: #fb7185;
   --gami-confetti-color-5: #fbbf24;
-  --gami-confetti-color-6: #f59e0b;
+   --gami-confetti-color-6: #f59e0b;
+   --gami-ring-from: #98de4b;
+   --gami-ring-to: #fbbf24;
+   --gami-toast-bg: linear-gradient(135deg, #98de4b 0%, #fbbf24 100%);
+   --gami-toast-text: #1a1e24;
+   --gami-badge-shimmer: linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
+   --gami-ring-sweep: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
 
-  /* Per-station badge colors (module-1..5) */
+   /* Per-station badge colors (module-1..5) */
   --badge-m1: #22d3ee;
   --badge-m1-soft: rgba(34, 211, 238, 0.16);
   --badge-m2: #a78bfa;
@@ -415,10 +427,13 @@ button {
   opacity: 1;
   filter: none;
   background: var(--badge-accent-soft);
+  background-image: var(--gami-badge-shimmer);
+  background-size: 200% 100%;
+  background-position: 100% 0;
   border-color: var(--badge-accent);
   box-shadow: 0 0 0 4px var(--badge-ring), 0 4px 14px var(--badge-glow);
   transform: scale(1.06);
-  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), badgeShimmer 2s ease-in-out;
 }
 
 @keyframes badgePop {
@@ -1627,7 +1642,7 @@ button {
 }
 
 .gami-strip-inner {
-  background: linear-gradient(120deg, var(--mint-light) 0%, var(--bg-surface) 55%);
+  background: linear-gradient(120deg, var(--mint-light) 0%, var(--bg-surface) 55%, var(--gami-streak-soft) 100%);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
@@ -1645,12 +1660,16 @@ button {
   width: 92px;
   height: 92px;
   border-radius: 50%;
-  background: conic-gradient(var(--mint-accent) 0deg var(--gami-stop), var(--border-color) var(--gami-stop) 360deg);
+  background: conic-gradient(from 0deg, var(--gami-ring-from) 0deg var(--gami-stop), var(--border-color) var(--gami-stop) 360deg);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   transition: background 0.4s ease;
+}
+
+.gami-ring.is-filling {
+  animation: ringSweep 0.8s ease-out;
 }
 
 .gami-ring-inner {
@@ -1751,9 +1770,9 @@ button {
   filter: none;
   background: var(--badge-accent-soft);
   border-color: var(--badge-accent);
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0), 0 4px 12px var(--badge-glow);
-  transform: scale(1.1);
-  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 0 4px var(--badge-accent), 0 4px 16px var(--badge-glow);
+  transform: scale(1.15);
+  animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), badgeShimmer 2s ease-in-out;
 }
 
 @media (max-width: 640px) {
@@ -1767,6 +1786,29 @@ button {
   .gami-dots {
     justify-content: center;
   }
+}
+
+/* Achievement toast popup */
+.gami-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--gami-toast-bg);
+  color: var(--gami-toast-text);
+  padding: 0.6rem 1.4rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 4px 20px var(--gami-badge-glow);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1300;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.gami-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Celebration confetti layer */
@@ -1807,12 +1849,44 @@ button {
   margin-top: 0.25rem;
   min-height: 1em;
   letter-spacing: 0.01em;
+  transition: color 0.2s;
 }
 
-.progress-cheer.is-hidden {
-  visibility: hidden;
+.progress-cheer.is-happy {
+  color: var(--mint-primary);
+  animation: cheerBounce 0.4s ease;
 }
 
+.progress-cheer.is-celebrate {
+  color: var(--gami-streak);
+  animation: cheerCelebrate 0.6s ease;
+}
+@keyframes badgeShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes ringSweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes streakPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@keyframes toastIn {
+  0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes cheerBounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-4px); }
+  70% { transform: translateY(2px); }
+}
+@keyframes cheerCelebrate {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
 @media (prefers-reduced-motion: reduce) {
   .confetti-piece,
   .gami-dot.earned,

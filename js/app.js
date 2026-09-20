@@ -790,39 +790,44 @@
         installBtn.disabled = true;
         installBtn.innerHTML = '⏳ Installing...';
         const cheerEl = document.getElementById('cheer-' + appId);
-        const cheerMsgs = [
-          'Unwrapping packages…',
-          'Laying out the files…',
-          'Almost there — a few final touches…',
-          'Done installing safely!'
-        ];
-        if (cheerEl) {
-          cheerEl.classList.remove('is-hidden');
-          cheerEl.textContent = cheerMsgs[0];
-        }
+         const cheerMsgs = [
+           'Unwrapping packages…',
+           'Laying out the files…',
+           'Almost there — a few final touches…',
+           'Done installing safely!'
+         ];
+         if (cheerEl) {
+           cheerEl.classList.remove('is-hidden', 'is-happy', 'is-celebrate');
+           cheerEl.textContent = cheerMsgs[0];
+           cheerEl.classList.add('is-happy');
+         }
 
-        if (progBar && progFill) {
-          progBar.style.display = 'block';
-          let progress = 0;
-          const timer = setInterval(function () {
-            progress += 25;
-            progFill.style.width = progress + '%';
-            if (cheerEl && cheerMsgs[progress / 25]) {
-              cheerEl.textContent = cheerMsgs[progress / 25];
-            }
-            if (progress >= 100) {
-              clearInterval(timer);
-              appState.installedApps.add(appName);
-              safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
-              if (cheerEl) {
-                cheerEl.textContent = 'Installed with zero sketchy downloads.';
-                setTimeout(function () { cheerEl.classList.add('is-hidden'); }, 2000);
-              }
-              gamiEarnBadge('module-3');
-              renderSoftware();
-            }
-          }, 90);
-        } else {
+         if (progBar && progFill) {
+           progBar.style.display = 'block';
+           let progress = 0;
+           const timer = setInterval(function () {
+             progress += 25;
+             progFill.style.width = progress + '%';
+             if (cheerEl && cheerMsgs[progress / 25]) {
+               cheerEl.textContent = cheerMsgs[progress / 25];
+               cheerEl.className = cheerEl.className.replace(/is-\w+/g, '');
+               cheerEl.classList.add(progress < 100 ? 'is-happy' : 'is-celebrate');
+             }
+             if (progress >= 100) {
+               clearInterval(timer);
+               appState.installedApps.add(appName);
+               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
+               if (cheerEl) {
+                 cheerEl.textContent = 'Installed with zero sketchy downloads.';
+                 cheerEl.className = cheerEl.className.replace(/is-\w+/g, '');
+                 cheerEl.classList.add('is-celebrate');
+                 setTimeout(function () { cheerEl.classList.add('is-hidden'); }, 2000);
+               }
+               gamiEarnBadge('module-3');
+               renderSoftware();
+             }
+           }, 90);
+         } else {
           appState.installedApps.add(appName);
           safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
           gamiEarnBadge('module-3');
@@ -1362,13 +1367,30 @@
     return typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
+  function gamiShowToast(moduleId) {
+    const old = document.querySelector('.gami-toast.visible');
+    if (old) old.remove();
+    const toast = document.createElement('div');
+    toast.className = 'gami-toast';
+    const station = GAMI_STATIONS[moduleId];
+    toast.textContent = (station ? station.icon + ' ' : '') + 'Goal complete!';
+    document.body.appendChild(toast);
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { toast.classList.add('visible'); });
+    });
+    setTimeout(function () {
+      toast.classList.remove('visible');
+      setTimeout(function () { if (toast.parentNode) toast.remove(); }, 300);
+    }, 2200);
+  }
+
   function gamiBurstConfetti() {
     const layer = document.getElementById('confetti-layer');
     if (!layer) return;
     if (gamiPrefersReducedMotion()) return;
 
     const frag = document.createDocumentFragment();
-    const pieceCount = Math.min(34, 10 + gamiStreak * 5);
+    const pieceCount = Math.min(40, 12 + gamiStreak * 6);
     for (let i = 0; i < pieceCount; i++) {
       const p = document.createElement('div');
       p.className = 'confetti-piece';
@@ -1377,15 +1399,13 @@
       p.style.width = (6 + Math.random() * 6) + 'px';
       p.style.height = (6 + Math.random() * 6) + 'px';
       p.style.backgroundColor = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
-      p.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+      p.style.animationDuration = (1.4 + Math.random() * 1.8) + 's';
       p.style.animationDelay = (Math.random() * 0.25) + 's';
       frag.appendChild(p);
     }
     layer.appendChild(frag);
 
-    setTimeout(function () {
-      layer.innerHTML = '';
-    }, 4200);
+    setTimeout(function () { layer.innerHTML = ''; }, 4200);
   }
 
   function gamiSetRingDom(pendingMsg) {
@@ -1420,13 +1440,16 @@
       if (badge) {
         badge.classList.add('earned');
         badge.setAttribute('aria-label', station.label + ' achievement badge: earned');
-        // restart the pop animation even on rapid re-triggers
         badge.classList.remove('earned');
         void badge.offsetWidth;
         badge.classList.add('earned');
       }
       if (dot) dot.classList.add('earned');
 
+      const ring = document.getElementById('gami-ring');
+      if (ring) { ring.classList.add('is-filling'); setTimeout(function () { ring.classList.remove('is-filling'); }, 900); }
+
+      gamiShowToast(moduleId);
       gamiBurstConfetti();
       gamiSetRingDom(station.icon + ' <strong>' + station.label + '</strong> badge earned! ' + station.cheer);
 
