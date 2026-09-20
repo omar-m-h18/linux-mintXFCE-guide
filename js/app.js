@@ -372,7 +372,7 @@
       });
 
       if (filtered.length === 0) {
-        appsList.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No applications found matching "' + escapeHtml(query) + '".</div>';
+        appsList.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No applications found matching "' + escapeHtml(query) + '". Try "Firefox", "Calc", or "VLC".</div>';
         return;
       }
 
@@ -712,7 +712,7 @@
       });
 
       if (filtered.length === 0) {
-        grid.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No software found for "' + escapeHtml(q || currentSoftCat) + '". Try searching "Steam" or "VLC"!</div>';
+        grid.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span>No software found matching "' + escapeHtml(q || currentSoftCat) + '". Try "Steam" or "VLC".</div>';
         return;
       }
 

@@ -262,6 +262,7 @@ button {
   letter-spacing: -0.02em;
   margin-bottom: 1rem;
   line-height: 1.2;
+  text-wrap: balance;
 }
 
 .hero-highlight {
@@ -317,8 +318,10 @@ button {
 .module-header h3 {
   font-size: 1.5rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
-  line-height: 1.3;
+  line-height: 1.25;
+  text-wrap: balance;
 }
 
 .module-intro {
@@ -518,6 +521,13 @@ button {
   transform: translateY(0);
 }
 
+.sim-btn:disabled,
+.btn-remove-app:disabled {
+  opacity: 0.55;
+  cursor: wait;
+  transform: none;
+}
+
 .sim-btn-primary {
   background: var(--mint-primary);
   color: #ffffff;
@@ -542,7 +552,7 @@ button {
   padding: 0.75rem 1rem;
   border-radius: var(--radius-md);
   font-size: 0.85rem;
-  line-height: 1.4;
+  line-height: 1.55;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -575,12 +585,6 @@ button {
   transition: all 0.2s ease;
 }
 
-@media (max-width: 600px) {
-  .whisker-container {
-    grid-template-columns: 1fr;
-  }
-}
-
 .whisker-sidebar {
   background: var(--bg-tertiary);
   border-right: 1px solid var(--border-color);
@@ -602,6 +606,24 @@ button {
   gap: 0.5rem;
   transition: all 0.15s;
   cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .whisker-container {
+    grid-template-columns: 1fr;
+  }
+
+  .whisker-sidebar {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .whisker-cat-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
 
 .whisker-cat-btn:hover,
@@ -629,6 +651,12 @@ button {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-size: 0.85rem;
+}
+
+.whisker-search-input:focus {
+  border-color: var(--mint-primary);
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 3px var(--mint-ring);
 }
 
 .whisker-apps-list {
@@ -741,6 +769,10 @@ button {
 
 .panel-icon-btn:hover {
   background: rgba(255, 255, 255, 0.15);
+}
+
+#panel-btn-clock {
+  font-variant-numeric: tabular-nums;
 }
 
 .panel-popup-modal {
@@ -857,8 +889,10 @@ button {
 
 .soft-bottom {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem 0.75rem;
   border-top: 1px solid var(--border-color);
   padding-top: 0.6rem;
 }
@@ -870,7 +904,7 @@ button {
 
 .install-progress-bar {
   width: 100%;
-  height: 6px;
+  height: 8px;
   background: var(--border-color);
   border-radius: var(--radius-full);
   overflow: hidden;
@@ -1068,6 +1102,10 @@ button {
   gap: 0.5rem;
 }
 
+.terminal-input-bar:focus-within {
+  box-shadow: inset 0 0 0 2px rgba(72, 187, 120, 0.55);
+}
+
 .term-run-btn {
   background: var(--mint-primary);
   color: #ffffff;
@@ -1242,6 +1280,7 @@ button {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .soft-cat-btn:hover {
@@ -1305,17 +1344,24 @@ button {
 
 /* Shared empty-state (no search results) */
 .empty-state {
-  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 2rem 1.25rem;
   text-align: center;
   color: var(--text-muted);
   font-size: 0.85rem;
-  line-height: 1.5;
+  line-height: 1.55;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
 }
 
 .empty-state-icon {
-  display: block;
-  font-size: 1.6rem;
-  margin-bottom: 0.35rem;
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
 }
 
 .software-grid .empty-state {
@@ -1383,7 +1429,9 @@ button {
   font-weight: 800;
   text-align: center;
   margin-bottom: 0.75rem;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  text-wrap: balance;
 }
 
 .deal-lede {
@@ -1433,7 +1481,10 @@ button {
 .decide-card h3 {
   font-size: 1.5rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
+  line-height: 1.25;
+  text-wrap: balance;
 }
 
 .decide-card p {
