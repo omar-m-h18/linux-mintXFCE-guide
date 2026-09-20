@@ -37,9 +37,9 @@ When analyzing, modifying, or extending this repository, every AI agent **MUST**
 linux-mintXFCE-guide/
 ├── index.html            # Primary UI layout & semantic DOM tree
 ├── css/
-│   └── style.css         # Mint-Y CSS variables, layout grids, components (~1450 lines)
+│   └── style.css         # Mint-Y CSS variables, layout grids, components (~1465 lines)
 ├── js/
-│   └── app.js            # Taste-station simulators, theme, preview modal (~1290 lines)
+│   └── app.js            # Taste-station simulators, theme, preview modal (~1310 lines)
 ├── knowledge.md          # Domain knowledge base & Lovable project brief
 ├── TECHNICAL_REPORT.md   # Architectural whitepaper & subsystem state machines
 ├── AGENTS.md             # This agent operation manual
@@ -67,8 +67,8 @@ linux-mintXFCE-guide/
 
 ### 3.1 Core Utilities & State Proxies
 - `safeStorage`: Resilient wrapper providing `.getItem(key)`, `.setItem(key, val)`, and `.removeItem(key)` with in-memory fallback.
-- `initThemeToggle()`: Manages dark/light theme toggle, binds click events, and syncs with `safeStorage.getItem('mint_theme')`.
-- `initWindowControls()`: Attaches event listeners to mock desktop window buttons (`.btn-min`, `.btn-max`, `.btn-close`) across all modules.
+- `initTheme()`: Manages dark/light theme toggle (calls `applyTheme()`), binds click events on `#theme-toggle-btn`, and syncs with `safeStorage` keys `mint_theme` and `mint_guide_theme`.
+- `initWindowControls()`: Attaches event listeners to mock desktop window buttons (`.xfce-btn-min`, `.xfce-btn-max`, `.xfce-btn-close`) across all modules.
 
 ### 3.2 Key Data Dictionaries
 - **`COMMANDS`** (Terminal REPL): Dictionary mapping command strings (`pwd`, `ls`, `uname -a`, `free -h`, `cat welcome_notes.txt`, `neofetch`, etc.) to HTML response strings.

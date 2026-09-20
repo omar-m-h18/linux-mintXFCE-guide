@@ -259,9 +259,17 @@ $$\text{Type Selection} \longrightarrow \text{Target Drive} \longrightarrow \tex
 
 ### 6.2 Window Control Invariance
 Mock desktop window buttons (`minimize`, `maximize`, `close`) provide tactile desktop feedback without destructively unmounting DOM nodes:
-- **Minimize**: Collapses the window body using CSS max-height transitions, preserving internal component state.
-- **Maximize**: Toggles a `.window-maximized` viewport overlay class.
-- **Close**: Gracefully resets the active simulator to its default starting view with an informative notification.
+- **Minimize**: Toggles the `.is-collapsed` class, hiding the window body, preserving internal component state.
+- **Maximize**: Toggles the `.is-maximized` class, applying a visible highlight ring.
+- **Close**: Adds `.is-collapsed` and surfaces an inline "reopen" banner; the reopen button restores the window with its prior state intact.
+
+### 6.3 Corrupted HTML-Entity Escape Incident (Root Cause Analysis)
+- **Vulnerability**: Commit `3d21ed3` introduced an `escapeHtml()` utility whose entity replacement strings were stripped during authoring — the HTML entities (`&amp;`, `&lt;`, `&gt;`, `&quot;`, `&#39;`) were written as their decoded selves (`&`, `<`, `>`, `"`, `'''`). The final line, `.replace(/'/g, ''');`, contained a bare unterminated apostrophe and produced `Uncaught SyntaxError: missing ) after argument list` at parse time.
+- **Consequence**: A parse error aborts the **entire** script before any handler binds — the same failure signature as §6.1. Every JS-driven control (timeshift, whisker, software manager, thunar, terminal, window chrome, theme toggle) was inert; only native anchor `<a href="#...">` navigation still responded.
+- **Resolution**:
+  1. Replaced the corrupted block with valid entity literal replacements: `&amp;`, `&lt;`, `&gt;`, `&quot;`, `&#39;`.
+  2. Byte-verified the replacement strings on write-back (entities were the exact failure vector).
+  3. Verified via headless browser: zero console errors, all five simulators populate, and a 16-check interaction harness (theme toggle, timeshift lifecycle, whisker category/launch, software search/install, terminal chips/Enter, thunar navigation/file modal, modal dismiss/Escape, window minimize/reopen, and an XSS-escape payload) passed end-to-end.
 
 ---
 
