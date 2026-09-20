@@ -58,23 +58,11 @@
   // --- 1b. HTML ESCAPE UTILITY ---
   function escapeHtml(value) {
     return String(value)
-      .replace(/&/g, '&')
-      .replace(/</g, '<')
-      .replace(/>/g, '>')
-      .replace(/"/g, '"')
-      .replace(/'/g, ''');
-  }
-
-  // --- 1c. TOAST HELPER (RACE-SAFE) ---
-  function showToast(el, html, ms) {
-    if (!el) return;
-    if (el._hideTimer) clearTimeout(el._hideTimer);
-    el.innerHTML = html;
-    el.style.display = 'flex';
-    el._hideTimer = setTimeout(function () {
-      el.style.display = 'none';
-      el._hideTimer = null;
-    }, ms);
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   // --- APP STATE ---
@@ -301,17 +289,13 @@
 
     if (!btnSnapshot || !btnBreak || !btnRestore || !statusBox) return;
 
-    let timeshiftRun = 0;
-
     btnSnapshot.onclick = function () {
-      const run = ++timeshiftRun;
       btnSnapshot.disabled = true;
       btnSnapshot.innerHTML = '⏳ Creating Snapshot...';
       statusBox.className = 'status-alert info';
       statusBox.innerHTML = '📸 <strong>Capturing RSYNC Snapshot:</strong> Scanning system files (/etc, /usr, /bin)...';
 
       setTimeout(function () {
-        if (run !== timeshiftRun) return;
         appState.timeshiftStep = 1;
         if (step1) step1.className = 'timeline-step active';
         if (step2) step2.className = 'timeline-step';
@@ -323,7 +307,6 @@
     };
 
     btnBreak.onclick = function () {
-      timeshiftRun++;
       appState.timeshiftStep = 2;
       if (step1) step1.className = 'timeline-step';
       if (step2) step2.className = 'timeline-step compromised';
@@ -332,14 +315,12 @@
     };
 
     btnRestore.onclick = function () {
-      const run = ++timeshiftRun;
       btnRestore.disabled = true;
       btnRestore.innerHTML = '⏳ Restoring System...';
       statusBox.className = 'status-alert info';
       statusBox.innerHTML = '↺ <strong>Timeshift Rollback:</strong> Replacing altered system files with pristine snapshot...';
 
       setTimeout(function () {
-        if (run !== timeshiftRun) return;
         appState.timeshiftStep = 1;
         if (step1) step1.className = 'timeline-step active';
         if (step2) step2.className = 'timeline-step';
@@ -432,7 +413,11 @@
           const appDesc = item.getAttribute('data-desc') || '';
 
           if (feedbackToast) {
-            showToast(feedbackToast, '🚀 <strong>Launched:</strong> "' + escapeHtml(appName) + '" opened on your desktop!', 3000);
+            feedbackToast.style.display = 'flex';
+            feedbackToast.innerHTML = '🚀 <strong>Launched:</strong> "' + appName + '" opened on your desktop!';
+            setTimeout(function () {
+              feedbackToast.style.display = 'none';
+            }, 3000);
           }
 
           openMockModal(
@@ -714,7 +699,6 @@
     if (!grid) return;
 
     let currentSoftCat = 'all';
-    const pendingSoftwareOps = {};
 
     function renderSoftware(query) {
       const q = (query || (searchInput ? searchInput.value : '')).toLowerCase().trim();
@@ -732,15 +716,11 @@
         return;
       }
 
-grid.innerHTML = filtered.map(function (item) {
+      grid.innerHTML = filtered.map(function (item) {
         const isInstalled = appState.installedApps.has(item.name);
-        const isPending = pendingSoftwareOps[item.id];
         let actionBtnHtml = '';
 
-        if (isPending) {
-          actionBtnHtml =
-            '<button type="button" class="sim-btn" disabled>⏳ Working...</button>';
-        } else if (isInstalled) {
+        if (isInstalled) {
           actionBtnHtml =
             '<div class="soft-action-group">' +
             '  <button type="button" class="sim-btn btn-open-app" data-id="' + item.id + '" data-name="' + item.name + '" data-icon="' + item.icon + '" data-desc="' + item.desc + '">✓ Open</button>' +
@@ -799,9 +779,6 @@ grid.innerHTML = filtered.map(function (item) {
         const progBar = document.getElementById('prog-' + appId);
         const progFill = document.getElementById('fill-' + appId);
 
-        if (pendingSoftwareOps[appId]) return;
-        pendingSoftwareOps[appId] = true;
-
         installBtn.disabled = true;
         installBtn.innerHTML = '⏳ Installing...';
 
@@ -813,14 +790,12 @@ grid.innerHTML = filtered.map(function (item) {
             progFill.style.width = progress + '%';
             if (progress >= 100) {
               clearInterval(timer);
-              delete pendingSoftwareOps[appId];
               appState.installedApps.add(appName);
               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
               renderSoftware();
             }
           }, 90);
         } else {
-          delete pendingSoftwareOps[appId];
           appState.installedApps.add(appName);
           safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
           renderSoftware();
@@ -859,9 +834,6 @@ grid.innerHTML = filtered.map(function (item) {
         const progBar = document.getElementById('prog-' + appId);
         const progFill = document.getElementById('fill-' + appId);
 
-        if (pendingSoftwareOps[appId]) return;
-        pendingSoftwareOps[appId] = true;
-
         removeBtn.disabled = true;
         removeBtn.innerHTML = '⏳ Removing...';
 
@@ -873,14 +845,12 @@ grid.innerHTML = filtered.map(function (item) {
             progFill.style.width = Math.max(0, progress) + '%';
             if (progress <= 0) {
               clearInterval(timer);
-              delete pendingSoftwareOps[appId];
               appState.installedApps.delete(appName);
               safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
               renderSoftware();
             }
           }, 80);
         } else {
-          delete pendingSoftwareOps[appId];
           appState.installedApps.delete(appName);
           safeStorage.setItem(STORAGE_KEY_APPS, JSON.stringify(Array.from(appState.installedApps)));
           renderSoftware();
@@ -1070,7 +1040,11 @@ grid.innerHTML = filtered.map(function (item) {
         }
       } else {
         if (fileInfoToast) {
-          showToast(fileInfoToast, '📄 <strong>' + escapeHtml(name) + '</strong>: ' + escapeHtml(desc || 'File in your Home directory.'), 3500);
+          fileInfoToast.style.display = 'flex';
+          fileInfoToast.innerHTML = '📄 <strong>' + name + '</strong>: ' + (desc || 'File in your Home directory.');
+          setTimeout(function () {
+            fileInfoToast.style.display = 'none';
+          }, 3500);
         }
 
         openMockModal(
